@@ -577,22 +577,27 @@ function rebuildFilters(img){const F=fabric.Image.filters,a=img.adj||{b:0,c:0,s:
 function filterTarget(){const o=active();if(o&&o.type==='image')return o;return canvas.backgroundImage||null;}
 
 /* =========================== export =========================== */
-async function deliver(name,blob){
-  try{if(window.claude&&claude.use){const d=await claude.use('downloads');if(d){await d.save({filename:name,data:blob});toast('تم الحفظ');return;}}}
-  catch(e){if(e&&e.code==='declined')return;if(e&&e.code&&e.code!=='unavailable'){toast('تعذر الحفظ: '+e.code);return;}}
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},3000);
+function dlAnchor(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},3000);}
+async function deliver(name,blob,kind){
+  if(window.claude&&claude.use){try{const d=await claude.use('downloads');if(d){await d.save({filename:name,data:blob});toast('تم الحفظ');return;}}catch(e){if(e&&e.code==='declined')return;if(e&&e.code&&e.code!=='unavailable'){toast('تعذر الحفظ: '+e.code);return;}}}
+  const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(kind==='image'&&mobile&&navigator.share){
+    try{const file=new File([blob],name,{type:blob.type});if(!navigator.canShare||navigator.canShare({files:[file]})){toast('اختر «حفظ الصورة» لحفظها في الاستوديو');await navigator.share({files:[file],title:name});return;}}
+    catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  dlAnchor(name,blob);toast(kind==='pdf'?'حُفظ الملف في التنزيلات':'تم التنزيل');
 }
 function dataURLtoBlob(u){const [h,b]=u.split(',');const m=h.match(/:(.*?);/)[1];const bin=atob(b);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:m});}
 $('#exportBtn').onclick=()=>{$('#exportModal').hidden=false;updExportInfo();};
 $('#closeExport').onclick=()=>$('#exportModal').hidden=true;
 $('#fmtSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;fmt=b.dataset.f;$$('#fmtSeg button').forEach(x=>x.classList.toggle('active',x===b));updExportInfo();};
 $('#qSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;qual=+b.dataset.q;$$('#qSeg button').forEach(x=>x.classList.toggle('active',x===b));updExportInfo();};
-function updExportInfo(){$('#exportInfo').textContent=fmt==='pdf'?`PDF بمقاس ${(W/300*25.4).toFixed(0)}×${(H/300*25.4).toFixed(0)} ملم`:`صورة ${fmt.toUpperCase()} بأبعاد ${W*qual}×${H*qual} بكسل`;}
+function updExportInfo(){$('#exportInfo').textContent=fmt==='pdf'?`PDF بمقاس ${(W/300*25.4).toFixed(0)}×${(H/300*25.4).toFixed(0)} ملم — يُحفظ في التنزيلات`:`صورة ${fmt.toUpperCase()} بأبعاد ${W*qual}×${H*qual} بكسل — تُحفظ في استوديو الصور`;}
 $('#doExport').onclick=async()=>{
   canvas.discardActiveObject();canvas.requestRenderAll();const name=($('#projTitle').value||'تصميم').replace(/[\\/:*?"<>|]/g,'-');
   const mult=Math.min(qual,Math.floor(16000/Math.max(W,H))||1)/scale;
-  if(fmt==='pdf'){const url=canvas.toDataURL({format:'jpeg',quality:.95,multiplier:Math.min(2,mult)});const {jsPDF}=window.jspdf;const mmW=W/300*25.4,mmH=H/300*25.4;const doc=new jsPDF({orientation:mmW>mmH?'l':'p',unit:'mm',format:[mmW,mmH]});doc.addImage(url,'JPEG',0,0,mmW,mmH);await deliver(name+'.pdf',doc.output('blob'));}
-  else{const url=canvas.toDataURL({format:fmt==='jpg'?'jpeg':'png',quality:.95,multiplier:mult});await deliver(name+'.'+fmt,dataURLtoBlob(url));}
+  if(fmt==='pdf'){const url=canvas.toDataURL({format:'jpeg',quality:.95,multiplier:Math.min(2,mult)});const {jsPDF}=window.jspdf;const mmW=W/300*25.4,mmH=H/300*25.4;const doc=new jsPDF({orientation:mmW>mmH?'l':'p',unit:'mm',format:[mmW,mmH]});doc.addImage(url,'JPEG',0,0,mmW,mmH);await deliver(name+'.pdf',doc.output('blob'),'pdf');}
+  else{const url=canvas.toDataURL({format:fmt==='jpg'?'jpeg':'png',quality:.95,multiplier:mult});await deliver(name+'.'+fmt,dataURLtoBlob(url),'image');}
   $('#exportModal').hidden=true;
 };
 $('#newBtn').onclick=()=>{$('#newModal').hidden=false;};
@@ -876,7 +881,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.2';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.3';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
