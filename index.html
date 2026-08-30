@@ -393,6 +393,18 @@ const fontReady={};
 fabric.Object.prototype.set({transparentCorners:false,cornerColor:'#2fb8a6',cornerStrokeColor:'#ffffff',borderColor:'#2fb8a6',cornerSize:16,touchCornerSize:28,cornerStyle:'circle',padding:6,borderScaleFactor:1.5});
 fabric.Object.prototype.controls.mtr.offsetY=-34;
 fabric.textureSize=4096;
+/* Safari fix: measure whole shaped line/word instead of per-grapheme sums (Arabic joining) */
+(function(){
+  const P=fabric.Text.prototype,origML=P._measureLine;
+  function shaped(obj,str){const ctx=obj.getMeasuringContext();ctx.save();obj._setTextStyles(ctx,null,true);const w=ctx.measureText(str).width*obj.fontSize/(fabric.Text.prototype.CACHE_FONT_SIZE||400);ctx.restore();return w;}
+  P._measureLine=function(li){const res=origML.call(this,li);const line=this._textLines[li];if(!line||!line.length||this.path||(this.styles&&Object.keys(this.styles).length))return res;
+    const str=line.join('');const real=shaped(this,str);const sp=this.charSpacing?this._getWidthOfCharSpacing():0;const glyph=res.width-sp*line.length;
+    if(!(glyph>0)||!(real>0))return res;const k=real/glyph;if(Math.abs(k-1)<0.004)return res;
+    const b=this.__charBounds[li];let left=0;for(let i=0;i<line.length;i++){const c=b[i];const kw=(c.kernedWidth-sp)*k+sp;c.width=(c.width-sp)*k+sp;c.kernedWidth=kw;c.left=left;left+=kw;}
+    b[line.length].left=left;res.width=left;return res;};
+  const TP=fabric.Textbox.prototype,origMW=TP._measureWord;
+  TP._measureWord=function(word,li,ci){const w=origMW.call(this,word,li,ci);if(this.path||(this.styles&&Object.keys(this.styles).length))return w;const real=shaped(this,word.join(''));if(!(real>0))return w;const sp=this.charSpacing?this._getWidthOfCharSpacing():0;return real+sp*word.length;};
+})();
 const canvas=new fabric.Canvas('c',{preserveObjectStacking:true,backgroundColor:'#ffffff',selection:true,allowTouchScrolling:false});
 
 function ensureFont(f){
