@@ -402,6 +402,13 @@ fabric.textureSize=4096;
     if(!(glyph>0)||!(real>0))return res;const k=real/glyph;if(Math.abs(k-1)<0.004)return res;
     const b=this.__charBounds[li];let left=0;for(let i=0;i<line.length;i++){const c=b[i];const kw=(c.kernedWidth-sp)*k+sp;c.width=(c.width-sp)*k+sp;c.kernedWidth=kw;c.left=left;left+=kw;}
     b[line.length].left=left;res.width=left;return res;};
+  /* Safari swaps left/right textAlign under direction:rtl — anchor by center instead (unambiguous everywhere) */
+  const origRC=P._renderChar;
+  P._renderChar=function(method,ctx,li,ci,chars,left,top){
+    if(this.direction==='rtl'&&!this.path){
+      const decl=this.getCompleteStyleDeclaration(li,ci);ctx.save();ctx.font=this._getFontDeclaration(decl);const w=ctx.measureText(chars).width;ctx.restore();
+      ctx.save();ctx.textAlign='center';origRC.call(this,method,ctx,li,ci,chars,left-w/2,top);ctx.restore();return;}
+    return origRC.call(this,method,ctx,li,ci,chars,left,top);};
   const TP=fabric.Textbox.prototype,origMW=TP._measureWord;
   TP._measureWord=function(word,li,ci){const w=origMW.call(this,word,li,ci);if(this.path||!fabric.Text.prototype.isEmptyStyles.call(this))return w;const real=shaped(this,word.join(''));if(!(real>0))return w;const sp=this.charSpacing?this._getWidthOfCharSpacing():0;return real+sp*word.length;};
 })();
@@ -772,7 +779,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 1.7';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 1.8';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
