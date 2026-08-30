@@ -147,12 +147,93 @@ input[type=number],select.sel{background:var(--panel2);border:1px solid var(--li
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
+<style>
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:20px;overflow:auto}
+.gate[hidden]{display:none}
+.gate .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;width:min(400px,100%);box-shadow:var(--shadow)}
+.gate .logo{font-family:"Reem Kufi","Tajawal",sans-serif;font-size:38px;font-weight:700;color:var(--accent);text-align:center;margin:0}
+.gate .sub{text-align:center;color:var(--muted);font-size:13px;margin:2px 0 18px}
+.gate label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+.gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;direction:ltr;text-align:left}
+.gate input[name=name]{direction:rtl;text-align:right}
+.gate .btn.block{margin-top:14px;padding:12px}
+.gate .alt{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
+.gate .alt button{color:var(--accent);font-weight:700}
+.gate .msg{font-size:13px;margin-top:10px;padding:10px;border-radius:10px;background:var(--panel2)}
+.gate .msg.err{color:var(--danger)}
+.gate .msg.ok{color:var(--accent)}
+.gate .state{text-align:center;padding:10px 0}
+.gate .state .big{font-size:44px;margin-bottom:8px}
+.gate .state h3{margin:0 0 6px;font-size:18px}
+.gate .state p{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.6}
+.acct{display:flex;align-items:center;gap:8px}
+</style>
+<div class="gate" id="gate">
+  <div class="card" id="gateCard"><p class="logo">مِداد</p><p class="sub">جارٍ التحقق…</p></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+const FB_CONFIG={apiKey:"AIzaSyCR2y3z08oOiAC7oGATqEAa8pLVR9TBhOk",authDomain:"midad-1929d.firebaseapp.com",databaseURL:"https://midad-1929d-default-rtdb.europe-west1.firebasedatabase.app",projectId:"midad-1929d",storageBucket:"midad-1929d.firebasestorage.app",messagingSenderId:"516275935186",appId:"1:516275935186:web:7e232fffb2c16199205a0b"};
+const ADMIN_EMAIL="a0545777031@gmail.com";
+firebase.initializeApp(FB_CONFIG);
+const auth=firebase.auth(),db=firebase.database();
+auth.languageCode='ar';
+const ERR={'auth/invalid-email':'البريد الإلكتروني غير صحيح','auth/user-not-found':'لا يوجد حساب بهذا البريد','auth/wrong-password':'كلمة المرور غير صحيحة','auth/invalid-credential':'البريد أو كلمة المرور غير صحيحة','auth/email-already-in-use':'هذا البريد مسجّل مسبقًا — سجّل الدخول','auth/weak-password':'كلمة المرور قصيرة (6 أحرف على الأقل)','auth/too-many-requests':'محاولات كثيرة، حاول لاحقًا','auth/network-request-failed':'تعذر الاتصال بالإنترنت'};
+const errMsg=e=>ERR[e.code]||('حدث خطأ: '+(e.code||e.message));
+const fmtDate=ms=>ms?new Date(ms).toLocaleDateString('ar-SA-u-nu-latn',{year:'numeric',month:'long',day:'numeric'}):'—';
+function gateHTML(mode,msg){
+  const isReg=mode==='register';
+  return `<p class="logo">مِداد</p><p class="sub">${isReg?'أنشئ حسابك — يُفعَّل بعد موافقة المدير':'سجّل الدخول للمتابعة'}</p>
+  <form id="gateForm">
+    ${isReg?'<label>الاسم</label><input name="name" required autocomplete="name" placeholder="اسمك الكامل">':''}
+    <label>البريد الإلكتروني</label><input name="email" type="email" required autocomplete="email" placeholder="name@example.com" inputmode="email">
+    <label>كلمة المرور</label><input name="password" type="password" required minlength="6" autocomplete="${isReg?'new-password':'current-password'}" placeholder="••••••••">
+    <button class="btn primary block" type="submit">${isReg?'إنشاء الحساب':'دخول'}</button>
+    ${msg?`<div class="msg ${msg.cls}">${msg.text}</div>`:''}
+  </form>
+  <div class="alt">${isReg?'لديك حساب؟ <button data-mode="login">سجّل الدخول</button>':'ليس لديك حساب؟ <button data-mode="register">سجّل الآن</button> · <button data-mode="reset">نسيت كلمة المرور</button>'}</div>`;
+}
+function stateHTML(icon,title,text,extra=''){return `<p class="logo">مِداد</p><div class="state"><div class="big">${icon}</div><h3>${title}</h3><p>${text}</p>${extra}<button class="btn" id="signOut">تسجيل الخروج</button></div>`;}
+let gateMode='login';
+function renderGate(msg){const c=document.getElementById('gateCard');c.innerHTML=gateHTML(gateMode,msg);
+  c.querySelector('#gateForm').onsubmit=async e=>{e.preventDefault();const f=e.target,email=f.email.value.trim(),pw=f.password.value;const b=f.querySelector('button[type=submit]');b.disabled=true;b.textContent='…';
+    try{if(gateMode==='register'){const cred=await auth.createUserWithEmailAndPassword(email,pw);await cred.user.updateProfile({displayName:f.name.value.trim()});await db.ref('users/'+cred.user.uid).set({email:email.toLowerCase(),name:f.name.value.trim(),status:'pending',createdAt:firebase.database.ServerValue.TIMESTAMP});}
+      else await auth.signInWithEmailAndPassword(email,pw);}
+    catch(err){renderGate({cls:'err',text:errMsg(err)});}};
+  c.querySelectorAll('[data-mode]').forEach(b=>b.onclick=async()=>{if(b.dataset.mode==='reset'){const em=c.querySelector('[name=email]').value.trim();if(!em)return renderGate({cls:'err',text:'اكتب بريدك أولًا ثم اضغط "نسيت كلمة المرور"'});try{await auth.sendPasswordResetEmail(em);renderGate({cls:'ok',text:'أرسلنا رابط إعادة التعيين إلى بريدك'});}catch(err){renderGate({cls:'err',text:errMsg(err)});}return;}gateMode=b.dataset.mode;renderGate();});}
+function showState(html){const c=document.getElementById('gateCard');c.innerHTML=html;const so=c.querySelector('#signOut');if(so)so.onclick=()=>auth.signOut();}
+window.isAdminUser=u=>!!u&&(u.email||'').toLowerCase()===ADMIN_EMAIL;
+let userRef=null;
+auth.onAuthStateChanged(async u=>{
+  const gate=document.getElementById('gate');if(userRef){userRef.off();userRef=null;}
+  if(!u){gate.hidden=false;renderGate();document.dispatchEvent(new CustomEvent('midad-auth',{detail:null}));return;}
+  let admin=window.isAdminUser(u);
+  if(!admin){try{admin=(await db.ref('admins/'+u.uid).get()).val()===true;}catch(e){}}
+  if(admin){gate.hidden=true;document.dispatchEvent(new CustomEvent('midad-auth',{detail:{user:u,admin:true}}));return;}
+  userRef=db.ref('users/'+u.uid);
+  userRef.on('value',async s=>{
+    let d=s.val();
+    if(!d){try{await userRef.set({email:(u.email||'').toLowerCase(),name:u.displayName||'',status:'pending',createdAt:firebase.database.ServerValue.TIMESTAMP});}catch(e){showState('⚠️','تعذر إنشاء ملفك',e.message);}return;}
+    const now=Date.now();
+    if(d.status==='approved'&&(!d.expiresAt||d.expiresAt>now)){gate.hidden=true;document.dispatchEvent(new CustomEvent('midad-auth',{detail:{user:u,admin:false,profile:d}}));return;}
+    gate.hidden=false;document.dispatchEvent(new CustomEvent('midad-auth',{detail:null}));
+    if(d.status==='blocked')showState(stateHTML('⛔','الحساب موقوف','تم إيقاف حسابك من قِبل المدير. تواصل معه لمزيد من التفاصيل.'));
+    else if(d.status==='approved')showState(stateHTML('⏳','انتهى الاشتراك',`انتهى اشتراكك بتاريخ ${fmtDate(d.expiresAt)}. تواصل مع المدير لتجديده.`));
+    else showState(stateHTML('🕒','بانتظار الموافقة',`تم استلام طلبك (${d.email}). سيُفعَّل حسابك بعد موافقة المدير — أعد فتح التطبيق لاحقًا.`));
+  },err=>showState(stateHTML('⚠️','تعذر التحقق',err.message)));
+});
+</script>
+
 <div class="topbar">
   <div class="brand">مِداد</div>
   <div class="grow"><input class="title-in" id="projTitle" value="تصميم بدون عنوان" aria-label="اسم التصميم"></div>
   <button class="ib" id="undoBtn" title="تراجع" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6H8a5 5 0 0 0 0 10h2"/><path d="m11 3-3 3 3 3"/></svg></button>
   <button class="ib" id="redoBtn" title="إعادة" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h7a5 5 0 0 1 0 10h-2"/><path d="m13 3 3 3-3 3"/></svg></button>
   <button class="ib" id="newBtn" title="تصميم جديد"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="ib" id="adminBtn" title="لوحة المدير" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/><path d="m9 12 2 2 4-4"/></svg></button>
+  <button class="ib" id="logoutBtn" title="تسجيل الخروج"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 4v16"/></svg></button>
   <button class="ib primary" id="exportBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>تصدير</button>
 </div>
 
@@ -606,6 +687,9 @@ document.addEventListener('paste',e=>{const it=[...(e.clipboardData||{}).items||
   else{fit();snap();renderPanel();}
   ensureFont('Cairo');ensureFont('Tajawal');ensureFont('Amiri');
 })();
+document.addEventListener('midad-auth',e=>{const d=e.detail;$('#adminBtn').hidden=!(d&&d.admin);if(d){fit();}});
+$('#adminBtn').onclick=()=>location.href='admin.html';
+$('#logoutBtn').onclick=()=>{if(window.firebase)firebase.auth().signOut();};
 </script>
 
 </body>

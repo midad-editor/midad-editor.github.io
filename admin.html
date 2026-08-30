@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>مِداد — لوحة المدير</title>
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Reem+Kufi:wght@700&display=swap">
+<style>
+:root{--bg:#f3f2ec;--panel:#ffffff;--panel2:#e9e8e0;--line:#d6d4ca;--text:#1b1d24;--muted:#6b6e79;--accent:#1f9e8c;--accent-ink:#ffffff;--danger:#c8453b;--warn:#b7791f;--shadow:0 10px 30px rgba(20,22,28,.18)}
+@media (prefers-color-scheme:dark){:root{--bg:#14161c;--panel:#1d2029;--panel2:#262a35;--line:#2f3441;--text:#ecebe6;--muted:#9a9eab;--accent:#2fb8a6;--accent-ink:#0d1a18;--danger:#e5645a;--warn:#e0a93a;--shadow:0 10px 30px rgba(0,0,0,.5)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Tajawal",system-ui,sans-serif;font-size:15px;min-height:100dvh}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+.top{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.logo{font-family:"Reem Kufi",sans-serif;font-size:22px;font-weight:700;color:var(--accent)}
+.top .t{font-weight:700}
+.top .grow{flex:1}
+.btn{padding:9px 14px;border-radius:10px;background:var(--panel2);font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn.primary{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.tools input{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.seg{display:flex;background:var(--panel2);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:7px 12px;border-radius:8px;font-size:13px}
+.seg button.active{background:var(--panel);color:var(--accent);font-weight:700}
+.list{display:flex;flex-direction:column;gap:10px}
+.u{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.u .nm{font-weight:700;font-size:16px}
+.u .em{color:var(--muted);font-size:13px;direction:ltr;text-align:right;unicode-bidi:plaintext}
+.u .meta{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.pill.pending{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.pill.approved{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.pill.expired{background:color-mix(in srgb,var(--danger) 18%,transparent);color:var(--danger)}
+.pill.blocked{background:var(--panel2);color:var(--muted)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.acts input[type=date]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:20px}
+.gate[hidden]{display:none}
+.gate .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;width:min(400px,100%);box-shadow:var(--shadow)}
+.gate .logo{font-size:38px;text-align:center;display:block;margin:0}
+.gate .sub{text-align:center;color:var(--muted);font-size:13px;margin:2px 0 18px}
+.gate label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+.gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;direction:ltr;text-align:left}
+.gate .btn.block{width:100%;justify-content:center;margin-top:14px;padding:12px}
+.gate .msg{font-size:13px;margin-top:10px;padding:10px;border-radius:10px;background:var(--panel2);color:var(--danger)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
+.toast.show{opacity:1}
+@media (max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.u{grid-template-columns:1fr}.acts{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="gate" id="gate"><div class="card" id="gateCard"><span class="logo">مِداد</span><p class="sub">جارٍ التحقق…</p></div></div>
+<div class="top"><span class="logo">مِداد</span><span class="t">لوحة المدير</span><span class="grow"></span><a class="btn" href="index.html">المحرر</a><button class="btn" id="logout">خروج</button></div>
+<div class="wrap">
+  <div class="stats"><div class="stat"><b id="sPend">0</b><span>بانتظار الموافقة</span></div><div class="stat"><b id="sAct">0</b><span>اشتراك فعّال</span></div><div class="stat"><b id="sExp">0</b><span>منتهي</span></div><div class="stat"><b id="sAll">0</b><span>إجمالي المسجلين</span></div></div>
+  <div class="tools"><input id="q" placeholder="بحث بالاسم أو البريد…"><div class="seg" id="filt"><button data-f="all" class="active">الكل</button><button data-f="pending">بانتظار</button><button data-f="approved">فعّال</button><button data-f="expired">منتهي</button><button data-f="blocked">موقوف</button></div></div>
+  <div class="list" id="list"><p class="empty">جارٍ التحميل…</p></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+const FB_CONFIG={apiKey:"AIzaSyCR2y3z08oOiAC7oGATqEAa8pLVR9TBhOk",authDomain:"midad-1929d.firebaseapp.com",databaseURL:"https://midad-1929d-default-rtdb.europe-west1.firebasedatabase.app",projectId:"midad-1929d",storageBucket:"midad-1929d.firebasestorage.app",messagingSenderId:"516275935186",appId:"1:516275935186:web:7e232fffb2c16199205a0b"};
+const ADMIN_EMAIL="a0545777031@gmail.com";
+firebase.initializeApp(FB_CONFIG);const auth=firebase.auth(),db=firebase.database();auth.languageCode='ar';
+const $=s=>document.querySelector(s);
+const ERR={'auth/invalid-email':'البريد غير صحيح','auth/user-not-found':'لا يوجد حساب بهذا البريد','auth/wrong-password':'كلمة المرور غير صحيحة','auth/invalid-credential':'البريد أو كلمة المرور غير صحيحة','auth/too-many-requests':'محاولات كثيرة، حاول لاحقًا','auth/network-request-failed':'تعذر الاتصال'};
+const fmt=ms=>ms?new Date(ms).toLocaleDateString('ar-SA-u-nu-latn',{year:'numeric',month:'short',day:'numeric'}):'—';
+const fmtG=ms=>ms?new Date(ms).toLocaleDateString('en-GB'):'—';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+function renderGate(msg){$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">دخول المدير</p><form id="f"><label>البريد الإلكتروني</label><input name="email" type="email" required autocomplete="email"><label>كلمة المرور</label><input name="password" type="password" required autocomplete="current-password"><button class="btn primary block" type="submit">دخول</button>${msg?`<div class="msg">${msg}</div>`:''}</form><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;
+  $('#f').onsubmit=async e=>{e.preventDefault();try{await auth.signInWithEmailAndPassword(e.target.email.value.trim(),e.target.password.value);}catch(err){renderGate(ERR[err.code]||err.code);}};}
+let users={},filter='all',q='';
+function stateOf(u){if(u.status==='blocked')return 'blocked';if(u.status==='approved')return (u.expiresAt&&u.expiresAt<Date.now())?'expired':'approved';return 'pending';}
+const LBL={pending:'بانتظار الموافقة',approved:'فعّال',expired:'منتهي',blocked:'موقوف'};
+function render(){
+  const arr=Object.entries(users).map(([id,u])=>({id,...u,st:stateOf(u)})).sort((a,b)=>(a.st==='pending'?0:1)-(b.st==='pending'?0:1)||(b.createdAt||0)-(a.createdAt||0));
+  const c={pending:0,approved:0,expired:0,blocked:0};arr.forEach(u=>c[u.st]++);
+  $('#sPend').textContent=c.pending;$('#sAct').textContent=c.approved;$('#sExp').textContent=c.expired;$('#sAll').textContent=arr.length;
+  const shown=arr.filter(u=>(filter==='all'||u.st===filter)&&(!q||(u.name||'').includes(q)||(u.email||'').includes(q.toLowerCase())));
+  $('#list').innerHTML=shown.length?shown.map(u=>{const d=new Date(u.expiresAt||Date.now()+30*864e5);const iso=d.toISOString().slice(0,10);
+    return `<div class="u" data-id="${u.id}"><div><div class="nm">${esc(u.name)||'<span style="color:var(--muted)">بدون اسم</span>'} <span class="pill ${u.st}">${LBL[u.st]}</span></div><div class="em">${esc(u.email)}</div><div class="meta"><span>سُجّل: ${fmt(u.createdAt)}</span>${u.status==='approved'?`<span>ينتهي: <b>${u.expiresAt?fmt(u.expiresAt):'بلا نهاية'}</b> (${fmtG(u.expiresAt)})</span>`:''}</div></div>
+    <div class="acts"><input type="date" value="${iso}" aria-label="تاريخ نهاية الاشتراك"><button class="btn sm" data-a="m1">+شهر</button><button class="btn sm" data-a="m3">+3 أشهر</button><button class="btn sm" data-a="y1">+سنة</button><button class="btn sm primary" data-a="ok">${u.st==='approved'?'تحديث التاريخ':'قبول'}</button>${u.st==='blocked'?`<button class="btn sm" data-a="unblock">إلغاء الإيقاف</button>`:`<button class="btn sm" data-a="block">إيقاف</button>`}<button class="btn sm danger" data-a="del">حذف</button></div></div>`;}).join(''):'<p class="empty">لا يوجد مستخدمون في هذه القائمة</p>';
+}
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function endOfDay(iso){const d=new Date(iso+'T23:59:59');return d.getTime();}
+$('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const card=b.closest('.u'),id=card.dataset.id,u=users[id],inp=card.querySelector('input[type=date]');const a=b.dataset.a;
+  const base=(u.expiresAt&&u.expiresAt>Date.now())?new Date(u.expiresAt):new Date();
+  if(a==='m1'||a==='m3'||a==='y1'){const d=new Date(base);if(a==='m1')d.setMonth(d.getMonth()+1);if(a==='m3')d.setMonth(d.getMonth()+3);if(a==='y1')d.setFullYear(d.getFullYear()+1);inp.value=d.toISOString().slice(0,10);return;}
+  try{
+    if(a==='ok'){if(!inp.value)return toast('حدد تاريخ النهاية');await db.ref('users/'+id).update({status:'approved',expiresAt:endOfDay(inp.value),approvedAt:firebase.database.ServerValue.TIMESTAMP,approvedBy:auth.currentUser.email});toast('تم القبول حتى '+fmtG(endOfDay(inp.value)));}
+    if(a==='block'){await db.ref('users/'+id).update({status:'blocked'});toast('تم إيقاف الحساب');}
+    if(a==='unblock'){await db.ref('users/'+id).update({status:u.expiresAt?'approved':'pending'});toast('تم إلغاء الإيقاف');}
+    if(a==='del'){if(!confirm('حذف سجل '+(u.email)+'؟ سيعود المستخدم إلى حالة "بانتظار الموافقة" عند دخوله التالي.'))return;await db.ref('users/'+id).remove();toast('تم الحذف');}
+  }catch(err){toast('خطأ: '+err.message);}
+};
+$('#q').oninput=e=>{q=e.target.value.trim();render();};
+$('#filt').onclick=e=>{const b=e.target.closest('button');if(!b)return;filter=b.dataset.f;[...$('#filt').children].forEach(x=>x.classList.toggle('active',x===b));render();};
+$('#logout').onclick=()=>auth.signOut();
+let ref=null;
+auth.onAuthStateChanged(async u=>{if(ref){ref.off();ref=null;}
+  if(!u){$('#gate').hidden=false;renderGate();return;}
+  let admin=(u.email||'').toLowerCase()===ADMIN_EMAIL;if(!admin){try{admin=(await db.ref('admins/'+u.uid).get()).val()===true;}catch(e){}}
+  if(!admin){$('#gate').hidden=false;$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">هذا الحساب (${esc(u.email)}) ليس مديرًا</p><button class="btn primary block" id="so">تسجيل الخروج</button><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;$('#so').onclick=()=>auth.signOut();return;}
+  $('#gate').hidden=true;ref=db.ref('users');ref.on('value',s=>{users=s.val()||{};render();},err=>{$('#list').innerHTML='<p class="empty">تعذر القراءة: '+err.message+'</p>';});
+});
+</script>
+</body>
+</html>
