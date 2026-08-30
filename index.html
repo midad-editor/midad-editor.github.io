@@ -37,13 +37,13 @@ button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);ou
 svg{display:block}
 
 /* top bar */
-.topbar{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--line);flex:0 0 auto;
+.topbar{display:flex;align-items:center;gap:5px;padding:8px 8px;background:var(--panel);border-bottom:1px solid var(--line);flex:0 0 auto;
   padding-top:max(8px,env(safe-area-inset-top))}
 .brand{font-family:"Reem Kufi","Tajawal",sans-serif;font-weight:700;font-size:20px;color:var(--accent);letter-spacing:.5px;margin-inline-end:4px}
 .topbar .grow{flex:1;min-width:0}
 .title-in{background:transparent;border:0;width:100%;text-align:start;color:var(--muted);font-size:13px;padding:4px 2px}
 .title-in:focus{color:var(--text);outline:0;border-bottom:1px solid var(--accent)}
-.ib{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--text);background:var(--panel2)}
+.ib{width:38px;height:38px;flex:0 0 auto;border-radius:10px;display:grid;place-items:center;color:var(--text);background:var(--panel2)}
 .ib:disabled{opacity:.35;cursor:default}
 .ib.primary{background:var(--accent);color:var(--accent-ink);width:auto;padding:0 14px;font-weight:700;gap:6px;display:flex}
 .ib.danger{color:var(--danger)}
@@ -125,6 +125,14 @@ textarea.txt{-webkit-user-select:text;user-select:text;width:100%;min-height:64p
 .filters button.active{color:var(--accent)}
 .filters .th{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#f6c453,#e0533f 45%,#2d6cdf);border:2px solid transparent}
 .filters button.active .th{border-color:var(--accent)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.pj{background:var(--panel2);border-radius:12px;overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column}
+.pj .th{aspect-ratio:1;background:var(--canvas-bg) center/contain no-repeat;cursor:pointer}
+.pj .nm{font-size:13px;font-weight:700;padding:6px 8px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pj .dt{font-size:11px;color:var(--muted);padding:0 8px}
+.pj .ac{display:flex;gap:4px;padding:6px 8px 8px}
+.pj .ac button{flex:1;font-size:12px;padding:6px;border-radius:8px;background:var(--panel)}
+.pj .ac button.danger{color:var(--danger)}
 .toast{position:fixed;bottom:calc(46dvh + 10px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20;white-space:nowrap}
 .toast.show{opacity:1}
 /* modal */
@@ -144,6 +152,7 @@ input[type=number],select.sel{background:var(--panel2);border:1px solid var(--li
   .tab{flex:1 0 20%}
   .toast{bottom:24px}
 }
+@media (max-width:420px){.ib{width:34px;height:34px}.ib.primary{padding:0 10px;font-size:13px}.brand{font-size:17px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -232,7 +241,9 @@ auth.onAuthStateChanged(async u=>{
   <div class="grow"><input class="title-in" id="projTitle" value="تصميم بدون عنوان" aria-label="اسم التصميم"></div>
   <button class="ib" id="undoBtn" title="تراجع" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6H8a5 5 0 0 0 0 10h2"/><path d="m11 3-3 3 3 3"/></svg></button>
   <button class="ib" id="redoBtn" title="إعادة" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h7a5 5 0 0 1 0 10h-2"/><path d="m13 3 3 3-3 3"/></svg></button>
-  <button class="ib" id="newBtn" title="تصميم جديد"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button class="ib" id="homeBtn" title="تصاميمي"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+  <button class="ib" id="saveBtn" title="حفظ"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg></button>
+  <button class="ib" id="newBtn" title="تصميم جديد" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   <button class="ib" id="adminBtn" title="لوحة المدير" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/><path d="m9 12 2 2 4-4"/></svg></button>
   <button class="ib" id="logoutBtn" title="تسجيل الخروج"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 4v16"/></svg></button>
   <button class="ib primary" id="exportBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>تصدير</button>
@@ -269,6 +280,14 @@ auth.onAuthStateChanged(async u=>{
   </div>
 </div>
 
+<div class="modal" id="projModal" hidden>
+  <div class="card" style="width:min(560px,100%)">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">تصاميمي</h3><button class="btn" id="closeProj">إغلاق</button></div>
+    <div class="row" style="margin-bottom:12px"><button class="btn primary" id="projNew" style="flex:1;justify-content:center">+ تصميم جديد</button></div>
+    <div class="pgrid" id="projGrid"><p class="empty">جارٍ التحميل…</p></div>
+    <p id="projNote" style="color:var(--muted);font-size:12px;margin:10px 0 0"></p>
+  </div>
+</div>
 <div class="modal" id="newModal" hidden>
   <div class="card">
     <h3>تصميم جديد</h3>
@@ -366,7 +385,7 @@ const TEMPLATES=[
 /* =========================== core =========================== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const PROPS=['name','role','locked','selectable','hasControls','lockMovementX','lockMovementY','lockRotation','lockScalingX','lockScalingY','direction','preset','adj','splitByGrapheme','editable'];
-let W=1080,H=1080,sizeId='ig',scale=1,tab='tpl',hist=[],hi=-1,restoring=false,fmt='png',qual=1;
+let W=1080,H=1080,sizeId='ig',scale=1,tab='tpl',hist=[],hi=-1,restoring=false,fmt='png',qual=1,curId=null,dirty=false;
 const fontReady={};
 fabric.Object.prototype.set({transparentCorners:false,cornerColor:'#2fb8a6',cornerStrokeColor:'#ffffff',borderColor:'#2fb8a6',cornerSize:16,touchCornerSize:28,cornerStyle:'circle',padding:6,borderScaleFactor:1.5});
 fabric.Object.prototype.controls.mtr.offsetY=-34;
@@ -397,7 +416,7 @@ function restore(i){restoring=true;canvas.loadFromJSON(hist[i],()=>{restoring=fa
 function updUndo(){$('#undoBtn').disabled=hi<=0;$('#redoBtn').disabled=hi>=hist.length-1;}
 $('#undoBtn').onclick=()=>{if(hi>0)restore(hi-1);};
 $('#redoBtn').onclick=()=>{if(hi<hist.length-1)restore(hi+1);};
-function autosave(){try{localStorage.setItem('midad.project',JSON.stringify({title:$('#projTitle').value,W,H,sizeId,json:hist[hi]}));}catch(e){}}
+function autosave(){dirty=true;if(curId)cloudSaveSoon();}
 $('#projTitle').addEventListener('change',autosave);
 
 canvas.on('object:modified',snap);canvas.on('object:added',()=>{if(!restoring)snapSoon();});canvas.on('object:removed',()=>{if(!restoring)snapSoon();});
@@ -470,7 +489,7 @@ function applyTemplate(t){restoring=true;canvas.clear();restoring=false;const s=
   canvas.setBackgroundColor(gradient(t.bg,'d'));
   t.items.forEach(it=>{if(it.t==='text')addText({text:it.s,font:it.f,size:Math.round(it.sz*W/1080),fill:it.c,top:H*it.y,width:W*(it.w||.9),bold:it.bold,shadow:it.sh,silent:true});});
   canvas.discardActiveObject();canvas.requestRenderAll();setTimeout(()=>{snap();renderPanel();},300);$('#projTitle').value=t.n;}
-function newDesign(id){restoring=true;canvas.clear();canvas.setBackgroundColor('#ffffff');restoring=false;hist=[];hi=-1;$('#projTitle').value='تصميم بدون عنوان';applySize(id,false);tab='tpl';renderTabs();renderPanel();}
+function newDesign(id){curId=null;dirty=false;restoring=true;canvas.clear();canvas.setBackgroundColor('#ffffff');restoring=false;hist=[];hi=-1;$('#projTitle').value='تصميم بدون عنوان';applySize(id,false);dirty=false;tab='tpl';renderTabs();renderPanel();}
 
 /* image filters */
 function rebuildFilters(img){const F=fabric.Image.filters,a=img.adj||{b:0,c:0,s:0,h:0,bl:0};const p=FILTERS.find(f=>f.id===(img.preset||'none'))||FILTERS[0];
@@ -682,12 +701,57 @@ document.addEventListener('paste',e=>{const it=[...(e.clipboardData||{}).items||
 
 /* boot */
 (function boot(){
-  let saved=null;try{saved=JSON.parse(localStorage.getItem('midad.project'));}catch(e){}
-  renderTabs();
-  if(saved&&saved.json){W=saved.W;H=saved.H;sizeId=saved.sizeId;$('#projTitle').value=saved.title||'';fit();restoring=true;canvas.loadFromJSON(saved.json,()=>{restoring=false;refreshTexts();canvas.requestRenderAll();hist=[saved.json];hi=0;updUndo();renderPanel();});}
-  else{fit();snap();renderPanel();}
+  renderTabs();fit();snap();renderPanel();dirty=false;
   ensureFont('Cairo');ensureFont('Tajawal');ensureFont('Amiri');
 })();
+/* ===== projects (cloud with local fallback) ===== */
+const store={
+  uid(){try{return window.firebase&&firebase.auth().currentUser?firebase.auth().currentUser.uid:null;}catch(e){return null;}},
+  cloud(){return !!(this.uid()&&window.firebase&&firebase.database);},
+  ref(){return firebase.database().ref('projects/'+this.uid());},
+  lkey:'midad.projects',
+  lread(){try{return JSON.parse(localStorage.getItem(this.lkey))||{};}catch(e){return {};}},
+  lwrite(o){try{localStorage.setItem(this.lkey,JSON.stringify(o));}catch(e){toast('مساحة التخزين المحلية ممتلئة');}},
+  async list(){if(this.cloud()){const s=await this.ref().get();const v=s.val()||{};return Object.entries(v).map(([id,p])=>({id,title:p.title,W:p.W,H:p.H,thumb:p.thumb,updatedAt:p.updatedAt}));}
+    return Object.entries(this.lread()).map(([id,p])=>({id,title:p.title,W:p.W,H:p.H,thumb:p.thumb,updatedAt:p.updatedAt}));},
+  async get(id){if(this.cloud())return (await this.ref().child(id).get()).val();return this.lread()[id];},
+  async put(id,data){if(this.cloud()){await this.ref().child(id).set(data);return;}const o=this.lread();o[id]=data;this.lwrite(o);},
+  async del(id){if(this.cloud()){await this.ref().child(id).remove();return;}const o=this.lread();delete o[id];this.lwrite(o);},
+  newId(){return (this.cloud()?this.ref().push().key:('p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)));}
+};
+function thumb(){canvas.discardActiveObject();const m=Math.min(1,320/Math.max(W,H))/scale;return canvas.toDataURL({format:'jpeg',quality:.6,multiplier:m});}
+let saving=false;
+async function saveProject(silent){
+  if(saving)return;saving=true;
+  try{if(!curId)curId=store.newId();const title=$('#projTitle').value.trim()||'تصميم بدون عنوان';
+    await store.put(curId,{title,W,H,sizeId,json:hist[hi]||serialize(),thumb:thumb(),updatedAt:Date.now()});dirty=false;if(!silent)toast('تم الحفظ');}
+  catch(e){toast('تعذر الحفظ: '+(e.message||e));}
+  saving=false;
+}
+const cloudSaveSoon=debounce(()=>saveProject(true),4000);
+async function openProject(id){
+  const p=await store.get(id);if(!p)return toast('التصميم غير موجود');
+  curId=id;W=p.W;H=p.H;sizeId=p.sizeId||sizeId;$('#projTitle').value=p.title||'';fit();
+  restoring=true;canvas.loadFromJSON(p.json,()=>{restoring=false;refreshTexts();canvas.requestRenderAll();hist=[p.json];hi=0;dirty=false;updUndo();tab='tpl';renderTabs();renderPanel();});
+  $('#projModal').hidden=true;
+}
+async function renderProjects(){
+  const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
+  try{const list=(await store.list()).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    $('#projNote').textContent=store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط';
+    g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
+  catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
+}
+$('#homeBtn').onclick=()=>{$('#projModal').hidden=false;renderProjects();};
+$('#closeProj').onclick=()=>$('#projModal').hidden=true;
+$('#projNew').onclick=()=>{$('#projModal').hidden=true;$('#newModal').hidden=false;};
+$('#saveBtn').onclick=()=>saveProject(false);
+$('#projGrid').onclick=async e=>{const b=e.target.closest('[data-open],[data-del]');if(!b)return;const id=b.closest('.pj').dataset.id;
+  if(b.dataset.open){if(dirty&&curId!==id&&!confirm('لديك تعديلات غير محفوظة في التصميم الحالي. هل تريد المتابعة؟'))return;openProject(id);}
+  else if(b.dataset.del){if(!confirm('حذف هذا التصميم نهائيًا؟'))return;await store.del(id);if(curId===id){curId=null;}renderProjects();toast('تم الحذف');}};
+$('#projTitle').addEventListener('change',()=>{if(curId)cloudSaveSoon();});
+window.addEventListener('beforeunload',e=>{if(dirty&&!curId){e.preventDefault();e.returnValue='';}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveProject(false);}});
 document.addEventListener('midad-auth',e=>{const d=e.detail;$('#adminBtn').hidden=!(d&&d.admin);if(d){fit();}});
 $('#adminBtn').onclick=()=>location.href='admin.html';
 $('#logoutBtn').onclick=()=>{if(window.firebase)firebase.auth().signOut();};
