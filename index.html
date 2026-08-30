@@ -57,9 +57,9 @@ svg{display:block}
 .zoomlbl{position:absolute;top:8px;inset-inline-start:10px;font-size:11px;color:var(--muted);background:var(--panel);padding:2px 8px;border-radius:20px;border:1px solid var(--line)}
 
 /* selection quick bar */
-.quick{position:absolute;top:8px;inset-inline-end:10px;display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px}
+.quick{display:flex;gap:6px;justify-content:center;background:var(--panel);border-bottom:1px solid var(--line);padding:4px 8px;flex:0 0 auto}
 .quick[hidden]{display:none}
-.quick button{width:34px;height:34px;border-radius:8px;display:grid;place-items:center}
+.quick button{width:40px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--panel2)}
 .quick button[hidden]{display:none}
 .quick button:active{background:var(--panel2)}
 
@@ -253,10 +253,7 @@ auth.onAuthStateChanged(async u=>{
   <button class="ib primary" id="exportBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>تصدير</button>
 </div>
 
-<div class="stage" id="stage">
-  <div class="wrap"><canvas id="c"></canvas></div>
-  <div class="zoomlbl" id="zoomLbl">100%</div>
-  <div class="quick" id="quick" hidden>
+<div class="quick" id="quick" hidden>
     <button id="qBg" title="إزالة الخلفية" hidden style="color:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 10V8M11 6H9M21 6h-2M17.5 3.5l1-1M12.5 3.5l-1-1M17.5 8.5l1 1M12.5 8.5 3 18l3 3 9.5-9.5"/></svg></button>
     <button id="qDup" title="نسخ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg></button>
     <button id="qUp" title="للأمام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 14 6-6 6 6"/></svg></button>
@@ -264,6 +261,9 @@ auth.onAuthStateChanged(async u=>{
     <button id="qLock" title="قفل"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
     <button id="qDel" title="حذف" style="color:var(--danger)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
   </div>
+<div class="stage" id="stage">
+  <div class="wrap"><canvas id="c"></canvas></div>
+  <div class="zoomlbl" id="zoomLbl">100%</div>
 </div>
 
 <div class="sheet" id="sheet">
@@ -882,7 +882,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.4';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.5';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
