@@ -475,6 +475,16 @@ function addShape(k){const s=Math.round(W/3),col=bgIsDark()?'#ffffff':'#1e3a5f';
   else if(k==='star'){const pts=[];for(let i=0;i<10;i++){const r=i%2?40:100,a=Math.PI/2+i*Math.PI/5;pts.push({x:Math.cos(a)*r,y:-Math.sin(a)*r});}o=new fabric.Polygon(pts,{...base,name:'نجمة'});o.scale(s/200);}
   else if(k==='frame')o=new fabric.Rect({...base,width:W*.9,height:H*.9,fill:'transparent',stroke:col,strokeWidth:Math.max(8,W/60),name:'إطار',strokeUniform:true});
   canvas.add(o);canvas.setActiveObject(o);canvas.requestRenderAll();}
+function addTable(rows,cols){
+  const dark=bgIsDark(),stroke=dark?'#ffffff':'#1b1d24',fill=dark?'rgba(0,0,0,.35)':'rgba(255,255,255,.85)';
+  const tw=W*.86,cellW=tw/cols,cellH=Math.max(W/5.5,H*.85/rows/1.6),th=cellH*rows,x0=(W-tw)/2,y0=(H-th)/2,sw=Math.max(3,Math.round(W/220));
+  const names=['١','٢','٣','٤','٥','٦','٧','٨','٩'];let first=null,n=0;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){n++;
+    const rect=new fabric.Rect({left:x0+c*cellW,top:y0+r*cellH,width:cellW,height:cellH,fill,stroke,strokeWidth:sw,strokeUniform:true,name:'إطار '+names[n-1],rx:0,ry:0});
+    const t=new fabric.Textbox('القسم '+names[n-1],{left:x0+c*cellW+cellW/2,top:y0+r*cellH+cellH/2,originX:'center',originY:'center',width:cellW*.88,fontFamily:'Cairo',fontSize:Math.round(Math.min(cellW/7,cellH/3)),fill:dark?'#ffffff':'#1b1d24',textAlign:'center',direction:'rtl',name:'نص القسم '+names[n-1],lineHeight:1.15,ph:true});
+    canvas.add(rect);canvas.add(t);if(!first)first=t;}
+  ensureFont('Cairo').then(()=>{canvas.getObjects().forEach(o=>{if(isText(o))o.initDimensions();});canvas.setActiveObject(first);canvas.requestRenderAll();setTimeout(focusTextIn,80);});
+}
 function addOverlay(k){let o;const base={left:0,top:0,width:W,height:H,selectable:true,role:'overlay',hasControls:false,lockMovementX:true,lockMovementY:true};
   if(k==='dark')o=new fabric.Rect({...base,fill:'#000000',opacity:.35,name:'تعتيم'});
   else if(k==='light')o=new fabric.Rect({...base,fill:'#ffffff',opacity:.35,name:'تفتيح'});
@@ -567,6 +577,7 @@ function renderPanel(){
       h+=`<div class="sec"><div class="sec-h">تنسيق</div>${slider('lsp','تباعد الحروف',-200,800,10,o.charSpacing||0)}${slider('lh','تباعد الأسطر',.7,2.5,.05,o.lineHeight)}${slider('op','الشفافية',0,1,.05,o.opacity)}${slider('rot','الدوران',-180,180,1,Math.round(o.angle))}</div>`;
     }else{
       h+=`<div class="sec"><div class="grid g3"><button class="btn primary" data-add="h" style="justify-content:center;font-size:18px">عنوان</button><button class="btn" data-add="s" style="justify-content:center">عنوان فرعي</button><button class="btn" data-add="b" style="justify-content:center;font-size:13px">نص عادي</button></div></div>`;
+      h+=`<div class="sec"><div class="sec-h">جدول بإطارات — كل قسم يُعبّأ على حدة</div><div class="chips"><button class="chip" data-table="3,1">٣ أقسام (صفوف)</button><button class="chip" data-table="1,3">٣ أقسام (أعمدة)</button><button class="chip" data-table="2,1">قسمان</button><button class="chip" data-table="4,1">٤ أقسام</button><button class="chip" data-table="3,2">٣×٢</button></div></div>`;
       h+=`<div class="sec"><div class="sec-h">أضف نصًا بخط معيّن</div><div class="fontlist">${FONTS.map(([f,n])=>`<button data-addfont="${f}" style="font-family:'${f}'">${n}<small>${f}</small></button>`).join('')}</div></div>`;
     }
   }
@@ -625,6 +636,7 @@ function bindPanel(){
     if(b.closest('#sizeGrid')&&d.id){applySize(d.id,true);renderPanel();return;}
     if(d.add){addText(d.add==='h'?{text:'عنوان رئيسي',font:'Cairo',size:Math.round(W/8),bold:true,ph:true}:d.add==='s'?{text:'عنوان فرعي',font:'Tajawal',size:Math.round(W/14),ph:true}:{text:'اكتب نصك هنا',font:'Tajawal',size:Math.round(W/24),ph:true});return;}
     if(d.addfont){addText({text:'اكتب هنا',font:d.addfont});return;}
+    if(d.table){const [r,c]=d.table.split(',').map(Number);addTable(r,c);return;}
     if(d.font&&isText(o)){o.set('fontFamily',d.font);ensureFont(d.font).then(()=>{o.initDimensions();o.setCoords();canvas.requestRenderAll();snap();});$$('#fontList button').forEach(x=>x.classList.toggle('active',x===b));return;}
     if(d.al&&isText(o)){o.set('textAlign',d.al);canvas.requestRenderAll();snap();renderPanel();return;}
     if(b.id==='boldBtn'&&isText(o)){o.set('fontWeight',(o.fontWeight==='700'||o.fontWeight==='bold')?'400':'700');ensureFont(o.fontFamily).then(()=>{o.initDimensions();canvas.requestRenderAll();snap();renderPanel();});return;}
