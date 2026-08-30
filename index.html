@@ -89,7 +89,7 @@ svg{display:block}
 .btn.block{width:100%;justify-content:center}
 .grid{display:grid;gap:8px}
 .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)} .g6{grid-template-columns:repeat(6,1fr)}
-.slider{display:grid;grid-template-columns:70px 1fr 40px;align-items:center;gap:8px;font-size:13px;margin-bottom:6px}
+.slider{display:grid;grid-template-columns:64px 1fr 36px;align-items:center;gap:8px;font-size:13px;margin-bottom:8px}
 .slider span:last-child{text-align:center;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
 input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .sw{width:100%;aspect-ratio:1;border-radius:10px;border:2px solid var(--line);cursor:pointer}
@@ -631,9 +631,9 @@ function renderPanel(){
   else if(tab==='text'){
     if(isText(o)){
       const sh=o.shadow;
-      h+=`<div class="sec"><textarea class="txt" id="txtIn" rows="2" onfocus="document.getElementById('panel').scrollTop=0;if(active()&&active().ph)this.select()">${o.text}</textarea></div>`;
-      h+=`<div class="sec"><div class="row" style="flex-wrap:nowrap"><div class="seg" style="flex:1"><button data-al="right" class="${o.textAlign==='right'?'active':''}">يمين</button><button data-al="center" class="${o.textAlign==='center'?'active':''}">وسط</button><button data-al="left" class="${o.textAlign==='left'?'active':''}">يسار</button></div><button class="btn ${o.fontWeight==='700'||o.fontWeight==='bold'?'primary':''}" id="boldBtn" style="font-weight:900">B</button></div></div>`;
+      h+=`<div class="sec" style="margin-bottom:8px"><textarea class="txt" id="txtIn" rows="1" style="min-height:44px" oninput="this.style.height='auto';this.style.height=Math.min(140,this.scrollHeight)+'px'" onfocus="document.getElementById('panel').scrollTop=0;if(active()&&active().ph)this.select()">${o.text}</textarea></div>`;
       h+=slider('fsz','الحجم',12,Math.round(W/2),1,Math.round(o.fontSize));
+      h+=`<div class="sec"><div class="row" style="flex-wrap:nowrap"><div class="seg" style="flex:1"><button data-al="right" class="${o.textAlign==='right'?'active':''}">يمين</button><button data-al="center" class="${o.textAlign==='center'?'active':''}">وسط</button><button data-al="left" class="${o.textAlign==='left'?'active':''}">يسار</button></div><button class="btn ${o.fontWeight==='700'||o.fontWeight==='bold'?'primary':''}" id="boldBtn" style="font-weight:900;padding:8px 14px">B</button></div></div>`;
       h+=`<div class="sec"><div class="sec-h">اللون</div>${swatches(o.fill,'fill')}</div>`;
       h+=`<div class="sec"><div class="sec-h">الخط <button class="chip" id="upFont">+ رفع خط (ttf/otf)</button></div><div class="fontlist" id="fontList">${CUSTOM_FONTS.map(f=>`<button data-font="${f.name}" class="${o.fontFamily===f.name?'active':''}" style="font-family:'${f.name}'">${f.name}<small>خط خاص</small></button>`).join('')}${FONTS.map(([f,n])=>`<button data-font="${f}" class="${o.fontFamily===f?'active':''}" style="font-family:'${f}'">${n}<small>${f}</small></button>`).join('')}</div></div>`;
       h+=`<div class="sec"><div class="sec-h">تأثيرات النص</div><div class="chips"><button class="chip ${sh?'active':''}" data-eff="shadow">ظل</button><button class="chip ${sh&&sh.blur>20&&!sh.offsetY?'active':''}" data-eff="glow">توهج</button><button class="chip ${o.strokeWidth>0?'active':''}" data-eff="stroke">حدود</button><button class="chip ${o.textBackgroundColor?'active':''}" data-eff="hl">تظليل</button><button class="chip" data-eff="clear">مسح</button></div></div>`;
@@ -688,7 +688,7 @@ function renderPanel(){
     h+=objs.length?`<div class="layers">${objs.map((x,i)=>`<div class="layer ${x===o?'active':''}" data-i="${i}"><span class="nm">${layerName(x)}</span><button data-act="up" title="للأمام">▲</button><button data-act="down" title="للخلف">▼</button><button data-act="vis" title="إظهار/إخفاء" style="${x.visible?'':'color:var(--danger)'}">◉</button><button data-act="lock" title="قفل" style="${x.locked?'color:var(--accent)':''}">🔒</button><button data-act="del" title="حذف" style="color:var(--danger)">✕</button></div>`).join('')}</div>`:`<p class="empty">لا توجد عناصر بعد</p>`;
     if(canvas.backgroundImage)h+=`<div class="layer" style="margin-top:8px;opacity:.7"><span class="nm">خلفية (صورة)</span></div>`;
   }
-  if(o&&['text','img','stk','fx'].includes(tab))h=`<div class="row" style="margin-bottom:10px"><button class="btn" data-dup="1" style="flex:1;justify-content:center">⧉ تكرار المحدد</button><button class="btn danger" data-delsel="1">حذف</button></div>`+h;
+  if(o&&['text','img','stk','fx'].includes(tab))h=`<div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="sec-h" style="margin:0">${isText(o)?'نص محدد':o.type==='image'?'صورة محددة':'عنصر محدد'}</span><span class="row" style="gap:4px"><button class="chip" data-dup="1" style="padding:5px 10px">⧉ تكرار</button><button class="chip" data-delsel="1" style="padding:5px 10px;color:var(--danger)">حذف</button></span></div>`+h;
   p.innerHTML=h;bindPanel();if(tab==='tpl')renderMyTemplates();
 }
 function cssPreview(id){return {gray:'grayscale(1)',sepia:'sepia(1)',vintage:'sepia(.5) contrast(1.2) brightness(.9)',kodak:'saturate(1.6) contrast(1.1)',polaroid:'contrast(1.2) brightness(1.1) saturate(.8)',warm:'sepia(.3) saturate(1.3)',cool:'hue-rotate(30deg)',teal:'hue-rotate(60deg) saturate(.8)',invert:'invert(1)',pixel:'blur(1px)',noise:'contrast(1.4)'}[id]||'none';}
@@ -876,7 +876,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.1';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.2';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
