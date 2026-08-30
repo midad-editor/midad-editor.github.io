@@ -94,7 +94,7 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:0}
 .sw.custom{display:grid;place-items:center;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);position:relative;overflow:hidden}
 .sw.custom input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
 .sw.none{background:linear-gradient(135deg,transparent 45%,var(--danger) 45%,var(--danger) 55%,transparent 55%),var(--panel2)}
-textarea.txt{width:100%;min-height:64px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel2);resize:vertical;direction:rtl;text-align:right}
+textarea.txt{-webkit-user-select:text;user-select:text;width:100%;min-height:64px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel2);resize:vertical;direction:rtl;text-align:right}
 .fontlist{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .fontlist button{padding:10px 8px;border-radius:10px;background:var(--panel2);font-size:20px;line-height:1.3;text-align:center;border:1px solid transparent;overflow:hidden;white-space:nowrap}
 .fontlist button.active{border-color:var(--accent)}
@@ -154,7 +154,8 @@ input[type=number],select.sel{background:var(--panel2);border:1px solid var(--li
 .gate .logo{font-family:"Reem Kufi","Tajawal",sans-serif;font-size:38px;font-weight:700;color:var(--accent);text-align:center;margin:0}
 .gate .sub{text-align:center;color:var(--muted);font-size:13px;margin:2px 0 18px}
 .gate label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
-.gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;direction:ltr;text-align:left}
+.gate,.gate *{user-select:text;-webkit-user-select:text}
+.gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;direction:ltr;text-align:left;unicode-bidi:plaintext;-webkit-appearance:none;appearance:none}
 .gate input[name=name]{direction:rtl;text-align:right}
 .gate .btn.block{margin-top:14px;padding:12px}
 .gate .alt{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
@@ -188,8 +189,8 @@ function gateHTML(mode,msg){
   return `<p class="logo">مِداد</p><p class="sub">${isReg?'أنشئ حسابك — يُفعَّل بعد موافقة المدير':'سجّل الدخول للمتابعة'}</p>
   <form id="gateForm">
     ${isReg?'<label>الاسم</label><input name="name" required autocomplete="name" placeholder="اسمك الكامل">':''}
-    <label>البريد الإلكتروني</label><input name="email" type="email" required autocomplete="email" placeholder="name@example.com" inputmode="email">
-    <label>كلمة المرور</label><input name="password" type="password" required minlength="6" autocomplete="${isReg?'new-password':'current-password'}" placeholder="••••••••">
+    <label>البريد الإلكتروني</label><input name="email" type="email" dir="ltr" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="name@example.com" inputmode="email">
+    <label>كلمة المرور</label><input name="password" type="password" dir="ltr" required minlength="6" autocomplete="${isReg?'new-password':'current-password'}" placeholder="••••••••">
     <button class="btn primary block" type="submit">${isReg?'إنشاء الحساب':'دخول'}</button>
     ${msg?`<div class="msg ${msg.cls}">${msg.text}</div>`:''}
   </form>

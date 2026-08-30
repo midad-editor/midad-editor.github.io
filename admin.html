@@ -50,7 +50,7 @@ button{background:none;border:0;cursor:pointer;padding:0}
 .gate .logo{font-size:38px;text-align:center;display:block;margin:0}
 .gate .sub{text-align:center;color:var(--muted);font-size:13px;margin:2px 0 18px}
 .gate label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
-.gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;direction:ltr;text-align:left}
+.gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;direction:ltr;text-align:left;unicode-bidi:plaintext;-webkit-appearance:none;appearance:none}
 .gate .btn.block{width:100%;justify-content:center;margin-top:14px;padding:12px}
 .gate .msg{font-size:13px;margin-top:10px;padding:10px;border-radius:10px;background:var(--panel2);color:var(--danger)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
@@ -80,7 +80,7 @@ const ERR={'auth/invalid-email':'البريد غير صحيح','auth/user-not-fo
 const fmt=ms=>ms?new Date(ms).toLocaleDateString('ar-SA-u-nu-latn',{year:'numeric',month:'short',day:'numeric'}):'—';
 const fmtG=ms=>ms?new Date(ms).toLocaleDateString('en-GB'):'—';
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
-function renderGate(msg){$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">دخول المدير</p><form id="f"><label>البريد الإلكتروني</label><input name="email" type="email" required autocomplete="email"><label>كلمة المرور</label><input name="password" type="password" required autocomplete="current-password"><button class="btn primary block" type="submit">دخول</button>${msg?`<div class="msg">${msg}</div>`:''}</form><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;
+function renderGate(msg){$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">دخول المدير</p><form id="f"><label>البريد الإلكتروني</label><input name="email" type="email" dir="ltr" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false"><label>كلمة المرور</label><input name="password" type="password" dir="ltr" required autocomplete="current-password"><button class="btn primary block" type="submit">دخول</button>${msg?`<div class="msg">${msg}</div>`:''}</form><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;
   $('#f').onsubmit=async e=>{e.preventDefault();try{await auth.signInWithEmailAndPassword(e.target.email.value.trim(),e.target.password.value);}catch(err){renderGate(ERR[err.code]||err.code);}};}
 let users={},filter='all',q='';
 function stateOf(u){if(u.status==='blocked')return 'blocked';if(u.status==='approved')return (u.expiresAt&&u.expiresAt<Date.now())?'expired':'approved';return 'pending';}
