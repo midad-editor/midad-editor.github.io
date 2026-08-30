@@ -565,7 +565,7 @@ function renderPanel(){
   else if(tab==='text'){
     if(isText(o)){
       const sh=o.shadow;
-      h+=`<div class="sec"><textarea class="txt" id="txtIn" rows="2" onfocus="if(active()&&active().ph)this.select()">${o.text}</textarea></div>`;
+      h+=`<div class="sec"><textarea class="txt" id="txtIn" rows="2" onfocus="document.getElementById('panel').scrollTop=0;if(active()&&active().ph)this.select()">${o.text}</textarea></div>`;
       h+=`<div class="sec"><div class="row" style="flex-wrap:nowrap"><div class="seg" style="flex:1"><button data-al="right" class="${o.textAlign==='right'?'active':''}">يمين</button><button data-al="center" class="${o.textAlign==='center'?'active':''}">وسط</button><button data-al="left" class="${o.textAlign==='left'?'active':''}">يسار</button></div><button class="btn ${o.fontWeight==='700'||o.fontWeight==='bold'?'primary':''}" id="boldBtn" style="font-weight:900">B</button></div></div>`;
       h+=slider('fsz','الحجم',12,Math.round(W/2),1,Math.round(o.fontSize));
       h+=`<div class="sec"><div class="sec-h">اللون</div>${swatches(o.fill,'fill')}</div>`;
@@ -623,7 +623,7 @@ function renderPanel(){
 }
 function cssPreview(id){return {gray:'grayscale(1)',sepia:'sepia(1)',vintage:'sepia(.5) contrast(1.2) brightness(.9)',kodak:'saturate(1.6) contrast(1.1)',polaroid:'contrast(1.2) brightness(1.1) saturate(.8)',warm:'sepia(.3) saturate(1.3)',cool:'hue-rotate(30deg)',teal:'hue-rotate(60deg) saturate(.8)',invert:'invert(1)',pixel:'blur(1px)',noise:'contrast(1.4)'}[id]||'none';}
 function layerName(x){if(isText(x))return (x.name&&x.name.startsWith('ملصق')?x.name:'نص: '+x.text.split('\n')[0].slice(0,18));return x.name||x.type;}
-function focusTextIn(){const t=$('#txtIn'),o=active();if(t&&o&&isText(o)){t.focus();if(o.ph)t.select();}}
+function focusTextIn(){const t=$('#txtIn'),o=active();if(t&&o&&isText(o)){$('#panel').scrollTop=0;$('#sheet').classList.remove('collapsed');t.focus({preventScroll:true});if(o.ph)t.select();}}
 function syncTextarea(){const t=$('#txtIn'),o=active();if(t&&o&&isText(o)&&document.activeElement!==t)t.value=o.text;}
 
 function bindPanel(){
@@ -703,6 +703,9 @@ function bindPanel(){
   };
 }
 
+/* keep layout above the on-screen keyboard (iOS/Android) */
+(function(){const vv=window.visualViewport;if(!vv)return;let t;function apply(){document.body.style.height=Math.round(vv.height)+'px';document.body.style.top=Math.round(vv.offsetTop)+'px';window.scrollTo(0,0);const sheet=$('#sheet');sheet.style.maxHeight=(vv.height<600&&document.activeElement&&document.activeElement.id==='txtIn')?Math.round(vv.height*.55)+'px':'';clearTimeout(t);t=setTimeout(fit,60);}
+vv.addEventListener('resize',apply);vv.addEventListener('scroll',apply);window.addEventListener('focusin',()=>setTimeout(apply,300));window.addEventListener('focusout',()=>setTimeout(apply,300));})();
 /* lock page: allow scrolling only inside scrollable panels */
 document.addEventListener('touchmove',e=>{if(!e.target.closest('.panel,.modal .card,.tabs,.chips,.filters,.fontlist,textarea'))e.preventDefault();},{passive:false});
 /* keyboard */
