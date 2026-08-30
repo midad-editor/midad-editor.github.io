@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;700;900&family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;700&family=Lateef:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Changa:wght@400;700&family=Almarai:wght@400;700;800&family=El+Messiri:wght@400;700&family=Lemonada:wght@400;700&family=Markazi+Text:wght@400;700&family=Scheherazade+New:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700;900&family=Harmattan:wght@400;700&family=Mada:wght@400;700;900&family=Rakkas&family=Katibeh&family=Jomhuria&family=Lalezar&family=Mirza:wght@400;700&family=Vibes&family=Gulzar&family=Readex+Pro:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Baloo+Bhaijaan+2:wght@400;700;800&family=Marhey:wght@400;700&family=Ruwudu:wght@400;700&family=Qahiri&family=Blaka&family=Kufam:wght@400;700&family=Amiri+Quran&family=Alkalami&display=swap">
 </head>
 <body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Vazirmatn:wght@400;700&family=Rubik:wght@400;700&family=Alexandria:wght@400;700&family=Zain:wght@400;700&family=Beiruti:wght@400;700&family=Playpen+Sans+Arabic:wght@400;700&family=Fustat:wght@400;700&family=Handjet:wght@400;700&family=Aref+Ruqaa+Ink&family=Cairo+Play:wght@400;700&family=Reem+Kufi+Ink&family=Reem+Kufi+Fun&family=Blaka+Ink&family=Blaka+Hollow&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap">
 <style>
 :root{
   --bg:#f3f2ec; --panel:#ffffff; --panel2:#e9e8e0; --line:#d6d4ca; --text:#1b1d24; --muted:#6b6e79;
@@ -285,7 +286,7 @@ auth.onAuthStateChanged(async u=>{
 <div class="modal" id="projModal" hidden>
   <div class="card" style="width:min(560px,100%)">
     <div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">تصاميمي</h3><button class="btn" id="closeProj">إغلاق</button></div>
-    <div class="row" style="margin-bottom:12px"><button class="btn primary" id="projNew" style="flex:1;justify-content:center">+ تصميم جديد</button></div>
+    <div class="row" style="margin-bottom:12px"><button class="btn primary" id="projNew" style="flex:1;justify-content:center">+ تصميم جديد</button><button class="btn" id="projTpl">حفظ كقالب</button></div>
     <div class="pgrid" id="projGrid"><p class="empty">جارٍ التحميل…</p></div>
     <p id="projNote" style="color:var(--muted);font-size:12px;margin:10px 0 0"></p>
     <div class="row" style="margin-top:12px"><button class="btn" id="adminBtn2" hidden>لوحة المدير</button><span style="flex:1"></span><button class="btn danger" id="logoutBtn2">تسجيل الخروج</button></div>
@@ -302,6 +303,7 @@ auth.onAuthStateChanged(async u=>{
 
 <input type="file" id="fileImg" accept="image/*" hidden>
 <input type="file" id="fileBg" accept="image/*" hidden>
+<input type="file" id="fileFont" accept=".ttf,.otf,.woff,.woff2,font/*" hidden>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -313,7 +315,10 @@ const FONTS=[
  ["El Messiri","المسيري"],["Lemonada","ليمونادة"],["Harmattan","هرمتان"],["Mada","مدى"],["Rakkas","رقّاص"],["Katibeh","كتيبة"],
  ["Jomhuria","جمهورية"],["Lalezar","لاله‌زار"],["Mirza","ميرزا"],["Vibes","فايبز"],["Gulzar","گلزار"],["Readex Pro","ريدكس"],
  ["IBM Plex Sans Arabic","بلكس"],["Baloo Bhaijaan 2","بالو"],["Marhey","مرحى"],["Ruwudu","رودو"],["Qahiri","قاهري"],["Blaka","بلاكا"],
- ["Kufam","كوفام"],["Amiri Quran","أميري قرآن"],["Alkalami","الكلامي"]
+ ["Kufam","كوفام"],["Amiri Quran","أميري قرآن"],["Alkalami","الكلامي"],
+ ["Noto Sans Arabic","نوتو سانس"],["Vazirmatn","وزير"],["Rubik","روبيك"],["Alexandria","الإسكندرية"],["Zain","زين"],["Beiruti","بيروتي"],
+ ["Playpen Sans Arabic","بلاي بن"],["Fustat","فسطاط"],["Handjet","هاندجت"],["Aref Ruqaa Ink","رقعة حبر"],["Cairo Play","القاهرة بلاي"],["Reem Kufi Ink","ريم كوفي حبر"],
+ ["Reem Kufi Fun","ريم كوفي مرح"],["Blaka Ink","بلاكا حبر"],["Blaka Hollow","بلاكا مفرّغ"],["Noto Nastaliq Urdu","نستعليق"]
 ];
 const SIZES=[
  {id:"ig",n:"إنستقرام مربع",w:1080,h:1080},{id:"igp",n:"إنستقرام طولي",w:1080,h:1350},{id:"story",n:"ستوري / حالة واتساب",w:1080,h:1920},
@@ -445,14 +450,14 @@ canvas.on('object:modified',snap);canvas.on('object:added',()=>{if(!restoring)sn
 canvas.on('text:changed',e=>{if(e.target)e.target.ph=false;snapSoon();syncTextarea();});
 canvas.on('text:editing:entered',e=>{const t=e.target;if(t&&t.ph){t.selectAll();}});
 canvas.on('selection:created',onSel);canvas.on('selection:updated',onSel);canvas.on('selection:cleared',()=>{updQuick();renderPanel();});
-function onSel(){const o=canvas.getActiveObject();updQuick();if(o){if(isText(o)&&tab!=='text')tab='text';else if(o.type==='image'&&tab!=='img'&&tab!=='fx')tab='img';else if(o.role==='overlay')tab='fx';}renderTabs();renderPanel();}
+function onSel(){const o=canvas.getActiveObject();updQuick();if(o){if(isText(o)&&tab!=='text')tab='text';else if(o.type==='image'&&tab!=='img'&&tab!=='fx')tab='img';else if(o.role==='overlay')tab='fx';else if(o.role==='frame')tab='stk';}renderTabs();renderPanel();}
 const isText=o=>o&&(o.type==='textbox'||o.type==='i-text'||o.type==='text');
 function active(){return canvas.getActiveObject();}
 
 /* quick bar */
 function updQuick(){const o=active();$('#quick').hidden=!o;if(o){$('#qLock').style.color=o.locked?'var(--accent)':'';}}
 $('#qDel').onclick=()=>{const o=active();if(!o)return;if(o.type==='activeSelection'){o.getObjects().forEach(x=>canvas.remove(x));canvas.discardActiveObject();}else canvas.remove(o);canvas.requestRenderAll();snap();};
-$('#qDup').onclick=()=>{const o=active();if(!o)return;o.clone(c=>{c.set({left:o.left+40,top:o.top+40});canvas.add(c);canvas.setActiveObject(c);canvas.requestRenderAll();snap();},PROPS);};
+$('#qDup').onclick=()=>{const o=active();if(!o)return;o.clone(c=>{c.set({left:o.left+Math.round(W*.03),top:o.top+Math.round(H*.03),evented:true});if(c.type==='activeSelection'){c.canvas=canvas;c.forEachObject(x=>canvas.add(x));c.setCoords();}else canvas.add(c);canvas.setActiveObject(c);canvas.requestRenderAll();snap();toast('تم التكرار');},PROPS);};
 $('#qUp').onclick=()=>{const o=active();if(o){canvas.bringForward(o);canvas.requestRenderAll();snap();}};
 $('#qDown').onclick=()=>{const o=active();if(o){canvas.sendBackwards(o);canvas.requestRenderAll();snap();}};
 $('#qLock').onclick=()=>{const o=active();if(!o)return;setLock(o,!o.locked);canvas.requestRenderAll();updQuick();snap();toast(o.locked?'تم قفل العنصر':'تم فك القفل');};
@@ -504,6 +509,26 @@ function addTable(rows,cols){
     canvas.add(rect);canvas.add(t);if(!first)first=t;}
   ensureFont('Cairo').then(()=>{canvas.getObjects().forEach(o=>{if(isText(o))o.initDimensions();});canvas.setActiveObject(first);canvas.requestRenderAll();setTimeout(focusTextIn,80);});
 }
+function addFrame(k){
+  const dark=bgIsDark(),col=dark?'#ffffff':'#1b1d24',m=Math.round(Math.min(W,H)*.035);let o;
+  const evenodd=(m1,m2,mb,rx)=>{const p=`M0 0 H${W} V${H} H0 Z M${m1} ${m2} H${W-m1} V${H-(mb||m2)} H${m1} Z`;return new fabric.Path(p,{fill:col,fillRule:'evenodd',left:0,top:0,name:'إطار الصفحة',role:'frame',hasControls:false,lockMovementX:true,lockMovementY:true});};
+  if(k==='thin')o=new fabric.Rect({left:m,top:m,width:W-2*m,height:H-2*m,fill:'transparent',stroke:col,strokeWidth:Math.max(4,W/160),strokeUniform:true,name:'إطار رفيع'});
+  else if(k==='thick')o=evenodd(m,m);
+  else if(k==='double'){const sw=Math.max(4,W/160);const a=new fabric.Rect({left:m,top:m,width:W-2*m,height:H-2*m,fill:'transparent',stroke:col,strokeWidth:sw*2.2,strokeUniform:true});const b=new fabric.Rect({left:m*2,top:m*2,width:W-4*m,height:H-4*m,fill:'transparent',stroke:col,strokeWidth:sw*.8,strokeUniform:true});o=new fabric.Group([a,b],{name:'إطار مزدوج'});}
+  else if(k==='round')o=new fabric.Rect({left:m,top:m,width:W-2*m,height:H-2*m,rx:m*1.5,ry:m*1.5,fill:'transparent',stroke:col,strokeWidth:Math.max(6,W/120),strokeUniform:true,name:'إطار دائري الزوايا'});
+  else if(k==='dashed')o=new fabric.Rect({left:m,top:m,width:W-2*m,height:H-2*m,fill:'transparent',stroke:col,strokeWidth:Math.max(4,W/160),strokeDashArray:[W/40,W/80],strokeUniform:true,name:'إطار متقطع'});
+  else if(k==='polaroid'){o=evenodd(m*1.2,m*1.2,m*4.5);o.set({fill:'#ffffff',name:'إطار بولارويد'});}
+  else if(k==='gradient'){o=evenodd(m*1.3,m*1.3);const g=GRADS[Math.floor(Math.random()*GRADS.length)];o.set({fill:gradient(g,'d'),name:'إطار متدرج'});}
+  else if(k==='ornate'){const sw=Math.max(4,W/180);const r1=new fabric.Rect({left:m*1.6,top:m*1.6,width:W-3.2*m,height:H-3.2*m,fill:'transparent',stroke:col,strokeWidth:sw,strokeUniform:true});const r2=new fabric.Rect({left:m*2.2,top:m*2.2,width:W-4.4*m,height:H-4.4*m,fill:'transparent',stroke:col,strokeWidth:sw*.5,strokeUniform:true});
+    const fs=m*2.2,corners=[[m*1.6,m*1.6],[W-m*1.6,m*1.6],[m*1.6,H-m*1.6],[W-m*1.6,H-m*1.6]].map(([x,y])=>new fabric.Text('❁',{left:x,top:y,originX:'center',originY:'center',fontSize:fs,fontFamily:'Amiri',fill:col}));
+    o=new fabric.Group([r1,r2,...corners],{name:'إطار مزخرف'});ensureFont('Amiri');}
+  else if(k==='corners'){const L=Math.min(W,H)*.14,sw=Math.max(6,W/100),mk=(x,y,sx,sy)=>new fabric.Path(`M0 ${L} V0 H${L}`,{left:x,top:y,fill:'',stroke:col,strokeWidth:sw,strokeLineCap:'round',strokeUniform:true,flipX:sx<0,flipY:sy<0,originX:sx<0?'right':'left',originY:sy<0?'bottom':'top'});
+    o=new fabric.Group([mk(m,m,1,1),mk(W-m,m,-1,1),mk(m,H-m,1,-1),mk(W-m,H-m,-1,-1)],{name:'زوايا'});}
+  if(!o)return;o.set({role:o.role||'frame'});if(o.type==='group'||o.type==='rect')o.set({role:'frame'});
+  canvas.add(o);canvas.setActiveObject(o);canvas.requestRenderAll();
+}
+function setFrameColor(o,c){const apply=x=>{if(x.type==='path'&&x.fill&&x.fill!=='')x.set('fill',c);else if(x.type==='text')x.set('fill',c);else x.set('stroke',c);};if(o.type==='group')o.getObjects().forEach(apply);else apply(o);o.dirty=true;}
+function setFrameWidth(o,v){const apply=x=>{if(x.stroke&&x.type!=='text')x.set('strokeWidth',v);};if(o.type==='group')o.getObjects().forEach(apply);else apply(o);o.dirty=true;}
 function addOverlay(k){let o;const base={left:0,top:0,width:W,height:H,selectable:true,role:'overlay',hasControls:false,lockMovementX:true,lockMovementY:true};
   if(k==='dark')o=new fabric.Rect({...base,fill:'#000000',opacity:.35,name:'تعتيم'});
   else if(k==='light')o=new fabric.Rect({...base,fill:'#ffffff',opacity:.35,name:'تفتيح'});
@@ -578,6 +603,7 @@ const slider=(id,label,min,max,step,val,unit='')=>`<div class="slider"><span>${l
 function renderPanel(){
   const p=$('#panel'),o=active();let h='';
   if(tab==='tpl'){
+    h+=`<div class="sec"><div class="sec-h">قوالبي <button class="chip" id="saveTplBtn">حفظ التصميم الحالي كقالب</button></div><div id="myTpl"><p class="empty">جارٍ التحميل…</p></div></div>`;
     h+=`<div class="sec"><div class="sec-h">القوالب الجاهزة</div><div class="tpl">${TEMPLATES.map(t=>`<button data-tpl="${t.id}" style="background:linear-gradient(160deg,${t.bg.join(',')})">${t.n}<span>${SIZES.find(s=>s.id===t.size).n}</span></button>`).join('')}</div></div>`;
     h+=`<div class="sec"><div class="sec-h">مقاس التصميم الحالي <small style="font-variant-numeric:tabular-nums">${W}×${H}</small></div><div class="grid g3 sizes" id="sizeGrid">${SIZES.map(sizeBtn).join('')}</div></div>`;
   }
@@ -588,7 +614,7 @@ function renderPanel(){
       h+=`<div class="sec"><div class="row" style="flex-wrap:nowrap"><div class="seg" style="flex:1"><button data-al="right" class="${o.textAlign==='right'?'active':''}">يمين</button><button data-al="center" class="${o.textAlign==='center'?'active':''}">وسط</button><button data-al="left" class="${o.textAlign==='left'?'active':''}">يسار</button></div><button class="btn ${o.fontWeight==='700'||o.fontWeight==='bold'?'primary':''}" id="boldBtn" style="font-weight:900">B</button></div></div>`;
       h+=slider('fsz','الحجم',12,Math.round(W/2),1,Math.round(o.fontSize));
       h+=`<div class="sec"><div class="sec-h">اللون</div>${swatches(o.fill,'fill')}</div>`;
-      h+=`<div class="sec"><div class="sec-h">الخط</div><div class="fontlist" id="fontList">${FONTS.map(([f,n])=>`<button data-font="${f}" class="${o.fontFamily===f?'active':''}" style="font-family:'${f}'">${n}<small>${f}</small></button>`).join('')}</div></div>`;
+      h+=`<div class="sec"><div class="sec-h">الخط <button class="chip" id="upFont">+ رفع خط (ttf/otf)</button></div><div class="fontlist" id="fontList">${CUSTOM_FONTS.map(f=>`<button data-font="${f.name}" class="${o.fontFamily===f.name?'active':''}" style="font-family:'${f.name}'">${f.name}<small>خط خاص</small></button>`).join('')}${FONTS.map(([f,n])=>`<button data-font="${f}" class="${o.fontFamily===f?'active':''}" style="font-family:'${f}'">${n}<small>${f}</small></button>`).join('')}</div></div>`;
       h+=`<div class="sec"><div class="sec-h">تأثيرات النص</div><div class="chips"><button class="chip ${sh?'active':''}" data-eff="shadow">ظل</button><button class="chip ${sh&&sh.blur>20&&!sh.offsetY?'active':''}" data-eff="glow">توهج</button><button class="chip ${o.strokeWidth>0?'active':''}" data-eff="stroke">حدود</button><button class="chip ${o.textBackgroundColor?'active':''}" data-eff="hl">تظليل</button><button class="chip" data-eff="clear">مسح</button></div></div>`;
       if(o.strokeWidth>0)h+=`<div class="sec"><div class="sec-h">لون الحدود</div>${swatches(o.stroke,'stroke')}</div>`+slider('strw','سماكة',1,Math.round(o.fontSize/6),.5,o.strokeWidth);
       if(o.textBackgroundColor)h+=`<div class="sec"><div class="sec-h">لون التظليل</div>${swatches(o.textBackgroundColor,'tbg')}</div>`;
@@ -597,7 +623,7 @@ function renderPanel(){
     }else{
       h+=`<div class="sec"><div class="grid g3"><button class="btn primary" data-add="h" style="justify-content:center;font-size:18px">عنوان</button><button class="btn" data-add="s" style="justify-content:center">عنوان فرعي</button><button class="btn" data-add="b" style="justify-content:center;font-size:13px">نص عادي</button></div></div>`;
       h+=`<div class="sec"><div class="sec-h">جدول بإطارات — كل قسم يُعبّأ على حدة</div><div class="chips"><button class="chip" data-table="3,1">٣ أقسام (صفوف)</button><button class="chip" data-table="1,3">٣ أقسام (أعمدة)</button><button class="chip" data-table="2,1">قسمان</button><button class="chip" data-table="4,1">٤ أقسام</button><button class="chip" data-table="3,2">٣×٢</button></div></div>`;
-      h+=`<div class="sec"><div class="sec-h">أضف نصًا بخط معيّن</div><div class="fontlist">${FONTS.map(([f,n])=>`<button data-addfont="${f}" style="font-family:'${f}'">${n}<small>${f}</small></button>`).join('')}</div></div>`;
+      h+=`<div class="sec"><div class="sec-h">أضف نصًا بخط معيّن <button class="chip" id="upFont">+ رفع خط (ttf/otf)</button></div>${CUSTOM_FONTS.length?`<div class="chips" style="margin-bottom:6px">${CUSTOM_FONTS.map(f=>`<button class="chip" data-delfont="${f.id}">حذف ${f.name} ✕</button>`).join('')}</div>`:''}<div class="fontlist">${CUSTOM_FONTS.map(f=>`<button data-addfont="${f.name}" style="font-family:'${f.name}'">${f.name}<small>خط خاص</small></button>`).join('')}${FONTS.map(([f,n])=>`<button data-addfont="${f}" style="font-family:'${f}'">${n}<small>${f}</small></button>`).join('')}</div></div>`;
     }
   }
   else if(tab==='img'){
@@ -611,8 +637,10 @@ function renderPanel(){
     }else h+=`<p class="empty">اختر صورة على اللوحة لتعديلها وإضافة الفلاتر</p>`;
   }
   else if(tab==='stk'){
+    h+=`<div class="sec"><div class="sec-h">إطارات الصفحة</div><div class="chips"><button class="chip" data-frame="thin">رفيع</button><button class="chip" data-frame="thick">سميك</button><button class="chip" data-frame="double">مزدوج</button><button class="chip" data-frame="round">زوايا دائرية</button><button class="chip" data-frame="dashed">متقطع</button><button class="chip" data-frame="ornate">مزخرف</button><button class="chip" data-frame="corners">زوايا فقط</button><button class="chip" data-frame="polaroid">بولارويد</button><button class="chip" data-frame="gradient">متدرج</button></div></div>`;
+    if(o&&o.role==='frame'){const first=o.type==='group'?o.getObjects()[0]:o;const cur=first.type==='path'?first.fill:first.stroke;h+=`<div class="sec"><div class="sec-h">لون الإطار — ${o.name}</div>${swatches(typeof cur==='string'?cur:null,'framec')}${first.stroke?slider('framew','سماكة',1,Math.round(W/20),1,first.strokeWidth||4):''}${slider('op','الشفافية',0,1,.05,o.opacity)}</div>`;}
     h+=`<div class="sec"><div class="sec-h">أشكال</div><div class="chips"><button class="chip" data-shape="rect">مستطيل</button><button class="chip" data-shape="round">مستطيل دائري</button><button class="chip" data-shape="circle">دائرة</button><button class="chip" data-shape="tri">مثلث</button><button class="chip" data-shape="line">خط</button><button class="chip" data-shape="heart">قلب</button><button class="chip" data-shape="star">نجمة</button><button class="chip" data-shape="frame">إطار</button></div></div>`;
-    if(o&&!isText(o)&&o.type!=='image'&&o.role!=='overlay')h+=`<div class="sec"><div class="sec-h">لون الشكل</div>${swatches(o.fill,'fill')}${slider('op','الشفافية',0,1,.05,o.opacity)}</div>`;
+    if(o&&!isText(o)&&o.type!=='image'&&o.role!=='overlay'&&o.role!=='frame')h+=`<div class="sec"><div class="sec-h">لون الشكل</div>${swatches(o.fill,'fill')}${slider('op','الشفافية',0,1,.05,o.opacity)}</div>`;
     if(o&&isText(o)&&o.name&&o.name.startsWith('ملصق'))h+=`<div class="sec"><div class="sec-h">لون الزخرفة</div>${swatches(o.fill,'fill')}${slider('fsz','الحجم',20,Math.round(W/1.5),1,Math.round(o.fontSize))}</div>`;
     h+=`<div class="sec"><div class="sec-h">زخارف عربية</div><div class="emoji orn">${ORN.map(c=>`<button data-orn="${c}">${c}</button>`).join('')}</div></div>`;
     h+=`<div class="sec"><div class="sec-h">رموز تعبيرية</div><div class="emoji">${EMOJI.map(c=>`<button data-emo="${c}">${c}</button>`).join('')}</div></div>`;
@@ -638,7 +666,8 @@ function renderPanel(){
     h+=objs.length?`<div class="layers">${objs.map((x,i)=>`<div class="layer ${x===o?'active':''}" data-i="${i}"><span class="nm">${layerName(x)}</span><button data-act="up" title="للأمام">▲</button><button data-act="down" title="للخلف">▼</button><button data-act="vis" title="إظهار/إخفاء" style="${x.visible?'':'color:var(--danger)'}">◉</button><button data-act="lock" title="قفل" style="${x.locked?'color:var(--accent)':''}">🔒</button><button data-act="del" title="حذف" style="color:var(--danger)">✕</button></div>`).join('')}</div>`:`<p class="empty">لا توجد عناصر بعد</p>`;
     if(canvas.backgroundImage)h+=`<div class="layer" style="margin-top:8px;opacity:.7"><span class="nm">خلفية (صورة)</span></div>`;
   }
-  p.innerHTML=h;bindPanel();
+  if(o&&['text','img','stk','fx'].includes(tab))h=`<div class="row" style="margin-bottom:10px"><button class="btn" data-dup="1" style="flex:1;justify-content:center">⧉ تكرار المحدد</button><button class="btn danger" data-delsel="1">حذف</button></div>`+h;
+  p.innerHTML=h;bindPanel();if(tab==='tpl')renderMyTemplates();
 }
 function cssPreview(id){return {gray:'grayscale(1)',sepia:'sepia(1)',vintage:'sepia(.5) contrast(1.2) brightness(.9)',kodak:'saturate(1.6) contrast(1.1)',polaroid:'contrast(1.2) brightness(1.1) saturate(.8)',warm:'sepia(.3) saturate(1.3)',cool:'hue-rotate(30deg)',teal:'hue-rotate(60deg) saturate(.8)',invert:'invert(1)',pixel:'blur(1px)',noise:'contrast(1.4)'}[id]||'none';}
 function layerName(x){if(isText(x))return (x.name&&x.name.startsWith('ملصق')?x.name:'نص: '+x.text.split('\n')[0].slice(0,18));return x.name||x.type;}
@@ -649,13 +678,20 @@ function bindPanel(){
   const p=$('#panel');
   p.onclick=e=>{
     const b=e.target.closest('button');
-    if(!b){const L=e.target.closest('.layer');if(L&&L.dataset.i!==undefined){const objs=canvas.getObjects().slice().reverse(),x=objs[+L.dataset.i];if(x){canvas.setActiveObject(x);canvas.requestRenderAll();renderPanel();}}return;}
+    if(!b){const th=e.target.closest('#myTpl .pj .th');if(th){useTemplate(th.closest('.pj').dataset.id);return;}const L=e.target.closest('.layer');if(L&&L.dataset.i!==undefined){const objs=canvas.getObjects().slice().reverse(),x=objs[+L.dataset.i];if(x){canvas.setActiveObject(x);canvas.requestRenderAll();renderPanel();}}return;}
     const d=b.dataset,o=active();
     if(d.tpl){applyTemplate(TEMPLATES.find(t=>t.id===d.tpl));return;}
+    if(b.id==='saveTplBtn'){saveAsTemplate();return;}
+    if(d.dup){$('#qDup').click();return;}
+    if(d.delsel){$('#qDel').click();return;}
+    if(d.use&&b.closest('.pj')){useTemplate(b.closest('.pj').dataset.id);return;}
+    if(d.deltpl&&b.closest('.pj')){if(confirm('حذف هذا القالب؟')){store.del(b.closest('.pj').dataset.id).then(()=>{renderMyTemplates();toast('تم الحذف');});}return;}
     if(b.closest('#sizeGrid')&&d.id){applySize(d.id,true);renderPanel();return;}
     if(d.add){addText(d.add==='h'?{text:'عنوان رئيسي',font:'Cairo',size:Math.round(W/8),bold:true,ph:true}:d.add==='s'?{text:'عنوان فرعي',font:'Tajawal',size:Math.round(W/14),ph:true}:{text:'اكتب نصك هنا',font:'Tajawal',size:Math.round(W/24),ph:true});return;}
     if(d.addfont){addText({text:'اكتب هنا',font:d.addfont});return;}
     if(d.table){const [r,c]=d.table.split(',').map(Number);addTable(r,c);return;}
+    if(b.id==='upFont'){$('#fileFont').click();return;}
+    if(d.delfont){if(confirm('حذف هذا الخط من خطوطك؟'))deleteCustomFont(d.delfont);return;}
     if(d.font&&isText(o)){o.set('fontFamily',d.font);ensureFont(d.font).then(()=>{o.initDimensions();o.setCoords();canvas.requestRenderAll();snap();});$$('#fontList button').forEach(x=>x.classList.toggle('active',x===b));return;}
     if(d.al&&isText(o)){o.set('textAlign',d.al);canvas.requestRenderAll();snap();renderPanel();return;}
     if(b.id==='boldBtn'&&isText(o)){o.set('fontWeight',(o.fontWeight==='700'||o.fontWeight==='bold')?'400':'700');ensureFont(o.fontFamily).then(()=>{o.initDimensions();canvas.requestRenderAll();snap();renderPanel();});return;}
@@ -681,6 +717,8 @@ function bindPanel(){
     if(d.cover&&o&&o.type==='image'){coverBg(o);o.set({name:'صورة',angle:0});canvas.sendToBack(o);o.setCoords();canvas.requestRenderAll();snap();return;}
     if(d.imgstroke&&o){if(d.imgstroke==='none')o.set({strokeWidth:0});else o.set({stroke:d.imgstroke,strokeWidth:o.strokeWidth||16,strokeUniform:true});canvas.requestRenderAll();snap();renderPanel();return;}
     if(d.shape){addShape(d.shape);return;}
+    if(d.frame){addFrame(d.frame);return;}
+    if(d.framec&&o&&o.role==='frame'){setFrameColor(o,d.framec);canvas.requestRenderAll();snap();renderPanel();return;}
     if(d.orn){addSticker(d.orn,'Amiri');return;}
     if(d.emo){addSticker(d.emo,'Tajawal');return;}
     if(d.bgc){setBgColor(d.bgc);return;}
@@ -696,6 +734,7 @@ function bindPanel(){
   p.oninput=e=>{
     const t=e.target,o=active(),v=parseFloat(t.value);const lbl=t.parentElement&&t.parentElement.querySelector('span:last-child');if(lbl&&t.type==='range')lbl.textContent=Math.round(v*100)/100;
     if(t.id==='txtIn'&&isText(o)){o.ph=false;o.styles={};o.set('text',t.value);o.initDimensions();canvas.requestRenderAll();snapSoon();return;}
+    if(t.dataset.framecpick&&o&&o.role==='frame'){setFrameColor(o,t.value);canvas.requestRenderAll();snapSoon();return;}
     if(t.dataset.fillpick&&o){o.set('fill',t.value);canvas.requestRenderAll();snapSoon();return;}
     if(t.dataset.strokepick&&o){o.set('stroke',t.value);canvas.requestRenderAll();snapSoon();return;}
     if(t.dataset.imgstrokepick&&o){o.set({stroke:t.value,strokeWidth:o.strokeWidth||16,strokeUniform:true});canvas.requestRenderAll();snapSoon();return;}
@@ -710,6 +749,7 @@ function bindPanel(){
       case 'lsp':o.set('charSpacing',v);o.initDimensions();break;
       case 'lh':o.set('lineHeight',v);o.initDimensions();break;
       case 'strw':o.set('strokeWidth',v);break;
+      case 'framew':if(o.role==='frame')setFrameWidth(o,v);break;
       case 'imgstrw':o.set({strokeWidth:v,strokeUniform:true});if(v&&!o.stroke)o.set('stroke','#ffffff');break;
       case 'shb':if(o.shadow)o.shadow.blur=v;break;
       case 'sho':if(o.shadow)o.shadow.offsetY=v;break;
@@ -745,6 +785,23 @@ document.addEventListener('paste',e=>{const it=[...(e.clipboardData||{}).items||
   renderTabs();fit();snap();renderPanel();dirty=false;
   ensureFont('Cairo');ensureFont('Tajawal');ensureFont('Amiri');
 })();
+/* ===== custom fonts ===== */
+let CUSTOM_FONTS=[];
+function fontStore(){return {cloud:store.cloud(),ref:()=>firebase.database().ref('fonts/'+store.uid()),lkey:'midad.fonts'};}
+async function loadCustomFonts(){
+  try{const fs=fontStore();let obj={};if(fs.cloud){obj=(await fs.ref().get()).val()||{};}else{try{obj=JSON.parse(localStorage.getItem(fs.lkey))||{};}catch(e){}}
+    CUSTOM_FONTS=Object.entries(obj).map(([id,f])=>({id,name:f.name,data:f.data}));
+    await Promise.all(CUSTOM_FONTS.map(f=>registerFont(f)));refreshTexts();if(tab==='text')renderPanel();}
+  catch(e){console.warn('fonts',e);}
+}
+async function registerFont(f){try{if(document.fonts.check(`16px "${f.name}"`))return;const ff=new FontFace(f.name,`url(${f.data})`);await ff.load();document.fonts.add(ff);fabric.util.clearFabricFontCache(f.name);fontReady[f.name]=Promise.resolve();}catch(e){console.warn('font load',f.name,e);}}
+$('#fileFont').onchange=e=>{const file=e.target.files[0];e.target.value='';if(!file)return;if(file.size>3*1024*1024)return toast('حجم الخط كبير (الحد 3 ميجابايت)');
+  const r=new FileReader();r.onload=async()=>{let name=file.name.replace(/\.(ttf|otf|woff2?)$/i,'').replace(/[_-]+/g,' ').trim()||'خط مخصص';name=prompt('اسم الخط كما سيظهر في القائمة:',name)||name;name=name.replace(/["']/g,'');
+    const f={id:'f'+Date.now().toString(36),name,data:r.result};await registerFont(f);
+    try{const fs=fontStore();if(fs.cloud)await fs.ref().child(f.id).set({name:f.name,data:f.data});else{let o={};try{o=JSON.parse(localStorage.getItem(fs.lkey))||{};}catch(e){}o[f.id]={name:f.name,data:f.data};localStorage.setItem(fs.lkey,JSON.stringify(o));}}
+    catch(err){toast('تم تحميل الخط لهذه الجلسة فقط: '+(err.message||err));}
+    CUSTOM_FONTS.push(f);toast('أُضيف الخط: '+name);renderPanel();};r.readAsDataURL(file);};
+async function deleteCustomFont(id){const fs=fontStore();if(fs.cloud)await fs.ref().child(id).remove();else{let o={};try{o=JSON.parse(localStorage.getItem(fs.lkey))||{};}catch(e){}delete o[id];localStorage.setItem(fs.lkey,JSON.stringify(o));}CUSTOM_FONTS=CUSTOM_FONTS.filter(f=>f.id!==id);renderPanel();}
 /* ===== projects (cloud with local fallback) ===== */
 const store={
   uid(){try{return window.firebase&&firebase.auth().currentUser?firebase.auth().currentUser.uid:null;}catch(e){return null;}},
@@ -753,8 +810,7 @@ const store={
   lkey:'midad.projects',
   lread(){try{return JSON.parse(localStorage.getItem(this.lkey))||{};}catch(e){return {};}},
   lwrite(o){try{localStorage.setItem(this.lkey,JSON.stringify(o));}catch(e){toast('مساحة التخزين المحلية ممتلئة');}},
-  async list(){if(this.cloud()){const s=await this.ref().get();const v=s.val()||{};return Object.entries(v).map(([id,p])=>({id,title:p.title,W:p.W,H:p.H,thumb:p.thumb,updatedAt:p.updatedAt}));}
-    return Object.entries(this.lread()).map(([id,p])=>({id,title:p.title,W:p.W,H:p.H,thumb:p.thumb,updatedAt:p.updatedAt}));},
+  async list(){let v;if(this.cloud()){const s=await this.ref().get();v=s.val()||{};}else v=this.lread();return Object.entries(v).map(([id,p])=>({id,title:p.title,W:p.W,H:p.H,thumb:p.thumb,updatedAt:p.updatedAt,template:!!p.template}));},
   async get(id){if(this.cloud())return (await this.ref().child(id).get()).val();return this.lread()[id];},
   async put(id,data){if(this.cloud()){await this.ref().child(id).set(data);return;}const o=this.lread();o[id]=data;this.lwrite(o);},
   async del(id){if(this.cloud()){await this.ref().child(id).remove();return;}const o=this.lread();delete o[id];this.lwrite(o);},
@@ -770,6 +826,24 @@ async function saveProject(silent){
   saving=false;
 }
 const cloudSaveSoon=debounce(()=>saveProject(true),4000);
+async function saveAsTemplate(){
+  const name=prompt('اسم القالب:',($('#projTitle').value||'قالب').trim());if(name===null)return;
+  try{const id=store.newId();await store.put(id,{title:name||'قالب',W,H,sizeId,json:hist[hi]||serialize(),thumb:thumb(),updatedAt:Date.now(),template:true});toast('حُفظ كقالب');if(tab==='tpl')renderPanel();if(!$('#projModal').hidden)renderProjects();}
+  catch(e){toast('تعذر الحفظ: '+(e.message||e));}
+}
+async function useTemplate(id){
+  const p=await store.get(id);if(!p)return toast('القالب غير موجود');
+  if(dirty&&!confirm('لديك تعديلات غير محفوظة. هل تريد بدء تصميم جديد من هذا القالب؟'))return;
+  curId=null;W=p.W;H=p.H;sizeId=p.sizeId||sizeId;$('#projTitle').value=p.title||'';fit();
+  restoring=true;canvas.loadFromJSON(p.json,()=>{restoring=false;refreshTexts();canvas.requestRenderAll();hist=[p.json];hi=0;dirty=true;updUndo();renderTabs();renderPanel();});
+  $('#projModal').hidden=true;toast('تصميم جديد من القالب');
+}
+async function renderMyTemplates(){
+  const g=$('#myTpl');if(!g)return;
+  try{const list=(await store.list()).filter(p=>p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));if(!$('#myTpl'))return;
+    g.innerHTML=list.length?`<div class="pgrid">${list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-use="1"></div><div class="nm">${(p.title||'قالب').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H}</div><div class="ac"><button data-use="1">استخدام</button><button data-deltpl="1" class="danger">حذف</button></div></div>`).join('')}</div>`:'<p class="empty">لا توجد قوالب خاصة بعد — من 📁 تصاميمي اضغط "حفظ كقالب"</p>';}
+  catch(e){g.innerHTML='<p class="empty">تعذر التحميل</p>';}
+}
 async function openProject(id){
   const p=await store.get(id);if(!p)return toast('التصميم غير موجود');
   curId=id;W=p.W;H=p.H;sizeId=p.sizeId||sizeId;$('#projTitle').value=p.title||'';fit();
@@ -778,22 +852,24 @@ async function openProject(id){
 }
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
-  try{const list=(await store.list()).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 1.8';
+  try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 1.9';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
 $('#homeBtn').onclick=()=>{$('#projModal').hidden=false;renderProjects();};
 $('#closeProj').onclick=()=>$('#projModal').hidden=true;
 $('#projNew').onclick=()=>{$('#projModal').hidden=true;$('#newModal').hidden=false;};
+$('#projTpl').onclick=()=>saveAsTemplate();
 $('#saveBtn').onclick=()=>saveProject(false);
 $('#projGrid').onclick=async e=>{const b=e.target.closest('[data-open],[data-del]');if(!b)return;const id=b.closest('.pj').dataset.id;
   if(b.dataset.open){if(dirty&&curId!==id&&!confirm('لديك تعديلات غير محفوظة في التصميم الحالي. هل تريد المتابعة؟'))return;openProject(id);}
   else if(b.dataset.del){if(!confirm('حذف هذا التصميم نهائيًا؟'))return;await store.del(id);if(curId===id){curId=null;}renderProjects();toast('تم الحذف');}};
 $('#projTitle').addEventListener('change',()=>{if(curId)cloudSaveSoon();});
 window.addEventListener('beforeunload',e=>{if(dirty&&!curId){e.preventDefault();e.returnValue='';}});
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveProject(false);}});
-document.addEventListener('midad-auth',e=>{const d=e.detail;$('#adminBtn2').hidden=!(d&&d.admin);if(d){fit();}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveProject(false);}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'&&active()){e.preventDefault();$('#qDup').click();}});
+document.addEventListener('midad-auth',e=>{const d=e.detail;$('#adminBtn2').hidden=!(d&&d.admin);if(d){fit();loadCustomFonts();}});
 $('#adminBtn2').onclick=()=>location.href='admin.html';
 $('#logoutBtn2').onclick=()=>{if(window.firebase)firebase.auth().signOut();$('#projModal').hidden=true;};
 </script>
