@@ -257,7 +257,7 @@ auth.onAuthStateChanged(async u=>{
   <div class="wrap"><canvas id="c"></canvas></div>
   <div class="zoomlbl" id="zoomLbl">100%</div>
   <div class="quick" id="quick" hidden>
-    <button id="qBg" title="إزالة الخلفية" hidden style="color:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.5 15.5M8.5 8.5 20 20"/></svg></button>
+    <button id="qBg" title="إزالة الخلفية" hidden style="color:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 10V8M11 6H9M21 6h-2M17.5 3.5l1-1M12.5 3.5l-1-1M17.5 8.5l1 1M12.5 8.5 3 18l3 3 9.5-9.5"/></svg></button>
     <button id="qDup" title="نسخ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg></button>
     <button id="qUp" title="للأمام"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 14 6-6 6 6"/></svg></button>
     <button id="qDown" title="للخلف"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 10 6 6 6-6"/></svg></button>
@@ -400,6 +400,8 @@ const fontReady={};
 fabric.Object.prototype.set({transparentCorners:false,cornerColor:'#2fb8a6',cornerStrokeColor:'#ffffff',borderColor:'#2fb8a6',cornerSize:16,touchCornerSize:28,cornerStyle:'circle',padding:6,borderScaleFactor:1.5});
 fabric.Object.prototype.controls.mtr.offsetY=-34;
 fabric.textureSize=4096;
+/* taps pass through transparent pixels (e.g. after background removal) and through the empty middle of frames */
+fabric.Image.prototype.perPixelTargetFind=true;fabric.Path.prototype.perPixelTargetFind=true;fabric.Group.prototype.perPixelTargetFind=true;fabric.Object.prototype.targetFindTolerance=6;
 /* Safari fix: measure whole shaped line/word instead of per-grapheme sums (Arabic joining) */
 (function(){
   const P=fabric.Text.prototype,origML=P._measureLine;
@@ -526,7 +528,7 @@ function addFrame(k){
     o=new fabric.Group([r1,r2,...corners],{name:'إطار مزخرف'});ensureFont('Amiri');}
   else if(k==='corners'){const L=Math.min(W,H)*.14,sw=Math.max(6,W/100),mk=(x,y,sx,sy)=>new fabric.Path(`M0 ${L} V0 H${L}`,{left:x,top:y,fill:'',stroke:col,strokeWidth:sw,strokeLineCap:'round',strokeUniform:true,flipX:sx<0,flipY:sy<0,originX:sx<0?'right':'left',originY:sy<0?'bottom':'top'});
     o=new fabric.Group([mk(m,m,1,1),mk(W-m,m,-1,1),mk(m,H-m,1,-1),mk(W-m,H-m,-1,-1)],{name:'زوايا'});}
-  if(!o)return;o.set({role:o.role||'frame'});if(o.type==='group'||o.type==='rect')o.set({role:'frame'});
+  if(!o)return;o.set({role:'frame',perPixelTargetFind:true});
   canvas.add(o);canvas.setActiveObject(o);canvas.requestRenderAll();
 }
 function setFrameColor(o,c){const apply=x=>{if(x.type==='path'&&x.fill&&x.fill!=='')x.set('fill',c);else if(x.type==='text')x.set('fill',c);else x.set('stroke',c);};if(o.type==='group')o.getObjects().forEach(apply);else apply(o);o.dirty=true;}
@@ -649,7 +651,7 @@ function renderPanel(){
     h+=`<div class="sec"><div class="grid" style="grid-template-columns:1fr 1fr"><button class="btn primary" id="pickImg" style="justify-content:center">إدراج صورة من الاستديو</button><button class="btn" id="pickBg2" style="justify-content:center">صورة كخلفية</button></div></div>`;
     if(o&&o.type==='image'){
       const a=o.adj||{b:0,c:0,s:0,h:0,bl:0};
-      h+=`<div class="sec"><button class="btn primary block" data-rmbg="1">✂ إزالة خلفية الصورة</button><p style="margin:6px 0 0;font-size:11px;color:var(--muted)">يعمل على الجهاز نفسه؛ أول مرة يُنزّل نموذجًا (~40 ميجابايت) ثم يصبح سريعًا</p></div>`;
+      h+=`<div class="sec"><button class="btn primary block" data-rmbg="1">✨ إزالة خلفية الصورة</button><p style="margin:6px 0 0;font-size:11px;color:var(--muted)">يعمل على الجهاز نفسه؛ أول مرة يُنزّل نموذجًا (~40 ميجابايت) ثم يصبح سريعًا</p></div>`;
       h+=`<div class="sec"><div class="sec-h">فلاتر</div><div class="filters">${FILTERS.map(f=>`<button data-preset="${f.id}" class="${(o.preset||'none')===f.id?'active':''}"><i class="th" style="filter:${cssPreview(f.id)}"></i>${f.n}</button>`).join('')}</div></div>`;
       h+=`<div class="sec"><div class="sec-h">تعديل</div>${slider('adjb','سطوع',-1,1,.05,a.b)}${slider('adjc','تباين',-1,1,.05,a.c)}${slider('adjs','تشبع',-1,1,.05,a.s)}${slider('adjh','درجة اللون',-1,1,.05,a.h)}${slider('adjbl','ضبابية',0,1,.02,a.bl)}${slider('op','الشفافية',0,1,.05,o.opacity)}</div>`;
       h+=`<div class="sec"><div class="sec-h">شكل الصورة</div><div class="chips"><button class="chip ${!o.clipPath?'active':''}" data-clip="none">أصلي</button><button class="chip ${o.clipPath&&o.clipPath.type==='rect'?'active':''}" data-clip="round">زوايا دائرية</button><button class="chip ${o.clipPath&&o.clipPath.type==='circle'?'active':''}" data-clip="circle">دائرة</button><button class="chip" data-flip="x">قلب أفقي</button><button class="chip" data-flip="y">قلب رأسي</button><button class="chip" data-cover="1">ملء الخلفية</button></div></div>`;
@@ -874,7 +876,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.0';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.1';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
