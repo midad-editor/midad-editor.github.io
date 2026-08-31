@@ -396,6 +396,27 @@ const TEMPLATES=[
    {t:"text",s:"🎂 🎈 🎉",f:"Tajawal",sz:110,c:"#ffffff",y:.2},
    {t:"text",s:"كل عام وأنتِ بخير",f:"Marhey",sz:140,c:"#ffffff",y:.5,sh:true},
    {t:"text",s:"عيد ميلاد سعيد",f:"Baloo Bhaijaan 2",sz:70,c:"#4a1c40",y:.7}]},
+ {id:"minimal",n:"اقتباس بسيط",size:"igp",bg:["#f6f1e7","#efe6d6"],items:[
+   {t:"text",s:"❝",f:"Amiri",sz:140,c:"#c9a96e",y:.22},
+   {t:"text",s:"كن أنت التغيير الذي\nتريد أن تراه في العالم",f:"Amiri",sz:96,c:"#3b2f2f",y:.48,w:.8},
+   {t:"text",s:"— مِداد",f:"Reem Kufi",sz:40,c:"#c9a96e",y:.72}]},
+ {id:"story-dark",n:"ستوري أنيق",size:"story",bg:["#0f0f12","#26262e"],items:[
+   {t:"text",s:"✦",f:"Amiri",sz:90,c:"#d4af37",y:.28},
+   {t:"text",s:"عنوانك\nهنا",f:"Noto Kufi Arabic",sz:200,c:"#ffffff",y:.46,bold:true,w:.85},
+   {t:"text",s:"نص تعريفي قصير يوضّح الفكرة",f:"Tajawal",sz:52,c:"#c9c9d1",y:.62,w:.8},
+   {t:"text",s:"@حسابك",f:"Readex Pro",sz:44,c:"#d4af37",y:.9}]},
+ {id:"menu",n:"قائمة / عرض",size:"a4p",bg:["#fff8f0","#fde9d9"],items:[
+   {t:"text",s:"القائمة",f:"Aref Ruqaa",sz:220,c:"#8b2e2e",y:.12},
+   {t:"text",s:"❁ ❁ ❁",f:"Amiri",sz:80,c:"#c9a96e",y:.2},
+   {t:"text",s:"قهوة عربية ............ ١٥ ر.س\nشاي بالنعناع ........... ١٢ ر.س\nكيكة التمر ............. ١٨ ر.س\nعصير طازج ............. ١٤ ر.س",f:"Cairo",sz:66,c:"#3b2f2f",y:.5,w:.85},
+   {t:"text",s:"نرحّب بكم يوميًا من ٤ عصرًا حتى ١٢ مساءً",f:"Tajawal",sz:60,c:"#8b2e2e",y:.84}]},
+ {id:"wedding",n:"دعوة زفاف",size:"a5",bg:["#fdfbf7","#f3ead8"],items:[
+   {t:"text",s:"بسم الله الرحمن الرحيم",f:"Amiri Quran",sz:70,c:"#a67c00",y:.1},
+   {t:"text",s:"يتشرف آل فلان وآل فلان",f:"Amiri",sz:90,c:"#4a1c40",y:.25},
+   {t:"text",s:"بدعوتكم لحضور حفل زفاف",f:"Aref Ruqaa",sz:110,c:"#4a1c40",y:.4,w:.9},
+   {t:"text",s:"الاسم  ♥  الاسم",f:"Reem Kufi",sz:150,c:"#a67c00",y:.55,w:.9},
+   {t:"text",s:"مساء الخميس ١٥ / ٧ / ١٤٤٨هـ\nقاعة الاحتفالات الكبرى",f:"Tajawal",sz:62,c:"#3b2f2f",y:.74,w:.8},
+   {t:"text",s:"❁ ✦ ❁",f:"Amiri",sz:80,c:"#a67c00",y:.9}]},
  {id:"blank",n:"فارغ",size:"ig",bg:["#ffffff","#ffffff"],items:[]}
 ];
 </script>
@@ -534,6 +555,14 @@ function addFrame(k){
   else if(k==='ornate'){const sw=Math.max(4,W/180);const r1=new fabric.Rect({left:m*1.6,top:m*1.6,width:W-3.2*m,height:H-3.2*m,fill:'transparent',stroke:col,strokeWidth:sw,strokeUniform:true});const r2=new fabric.Rect({left:m*2.2,top:m*2.2,width:W-4.4*m,height:H-4.4*m,fill:'transparent',stroke:col,strokeWidth:sw*.5,strokeUniform:true});
     const fs=m*2.2,corners=[[m*1.6,m*1.6],[W-m*1.6,m*1.6],[m*1.6,H-m*1.6],[W-m*1.6,H-m*1.6]].map(([x,y])=>new fabric.Text('❁',{left:x,top:y,originX:'center',originY:'center',fontSize:fs,fontFamily:'Amiri',fill:col}));
     o=new fabric.Group([r1,r2,...corners],{name:'إطار مزخرف'});ensureFont('Amiri');}
+  else if(k==='floral'){const sw=Math.max(3,W/220);const r1=new fabric.Rect({left:m*1.8,top:m*1.8,width:W-3.6*m,height:H-3.6*m,rx:m,ry:m,fill:'transparent',stroke:col,strokeWidth:sw,strokeUniform:true});
+    const fs=m*3,mk=(x,y,a)=>new fabric.Text('❀',{left:x,top:y,originX:'center',originY:'center',fontSize:fs,fontFamily:'Amiri',fill:col,angle:a});const sm=(x,y)=>new fabric.Text('✿',{left:x,top:y,originX:'center',originY:'center',fontSize:fs*.5,fontFamily:'Amiri',fill:col});
+    o=new fabric.Group([r1,mk(m*1.8,m*1.8,0),mk(W-m*1.8,m*1.8,90),mk(m*1.8,H-m*1.8,-90),mk(W-m*1.8,H-m*1.8,180),sm(W/2,m*1.8),sm(W/2,H-m*1.8),sm(m*1.8,H/2),sm(W-m*1.8,H/2)],{name:'إطار زهري'});ensureFont('Amiri');}
+  else if(k==='arab'){const sw=Math.max(3,W/240);const r1=new fabric.Rect({left:m*1.5,top:m*1.5,width:W-3*m,height:H-3*m,fill:'transparent',stroke:col,strokeWidth:sw,strokeUniform:true});
+    const parts=[r1];const n=Math.max(6,Math.round(W/(m*2.2)));for(let i=0;i<=n;i++){const xx=m*1.5+(W-3*m)*i/n;parts.push(new fabric.Text('❖',{left:xx,top:m*1.5,originX:'center',originY:'center',fontSize:m*1.1,fontFamily:'Amiri',fill:col}));parts.push(new fabric.Text('❖',{left:xx,top:H-m*1.5,originX:'center',originY:'center',fontSize:m*1.1,fontFamily:'Amiri',fill:col}));}
+    const nv=Math.max(6,Math.round(H/(m*2.2)));for(let i=1;i<nv;i++){const yy=m*1.5+(H-3*m)*i/nv;parts.push(new fabric.Text('❖',{left:m*1.5,top:yy,originX:'center',originY:'center',fontSize:m*1.1,fontFamily:'Amiri',fill:col}));parts.push(new fabric.Text('❖',{left:W-m*1.5,top:yy,originX:'center',originY:'center',fontSize:m*1.1,fontFamily:'Amiri',fill:col}));}
+    o=new fabric.Group(parts,{name:'إطار عربي'});ensureFont('Amiri');}
+  else if(k==='ribbon'){const p=new fabric.Path(`M0 0 H${W} V${H} H0 Z M${m*1.2} ${m*1.2} H${W-m*1.2} V${H-m*1.2} H${m*1.2} Z`,{fill:col,fillRule:'evenodd',left:0,top:0});const inner=new fabric.Rect({left:m*1.9,top:m*1.9,width:W-3.8*m,height:H-3.8*m,fill:'transparent',stroke:dark?'#1b1d24':'#ffffff',strokeWidth:Math.max(2,W/300),strokeUniform:true,strokeDashArray:[W/90,W/90]});o=new fabric.Group([p,inner],{name:'إطار شريطي'});}
   else if(k==='corners'){const L=Math.min(W,H)*.14,sw=Math.max(6,W/100),mk=(x,y,sx,sy)=>new fabric.Path(`M0 ${L} V0 H${L}`,{left:x,top:y,fill:'',stroke:col,strokeWidth:sw,strokeLineCap:'round',strokeUniform:true,flipX:sx<0,flipY:sy<0,originX:sx<0?'right':'left',originY:sy<0?'bottom':'top'});
     o=new fabric.Group([mk(m,m,1,1),mk(W-m,m,-1,1),mk(m,H-m,1,-1),mk(W-m,H-m,-1,-1)],{name:'زوايا'});}
   if(!o)return;o.set({role:'frame',perPixelTargetFind:true});
@@ -578,6 +607,33 @@ async function removeImageBg(o){
   bgrBusy=false;
 }
 $('#qBg').onclick=()=>removeImageBg(active());
+
+/* ===== generated backgrounds (patterns) ===== */
+const SCHEMES=[["#f6f1e7","#c9a96e"],["#0b3d2e","#d4af37"],["#1e3a5f","#9fc5e8"],["#ffffff","#2fb8a6"],["#4a1c40","#f6c453"],["#f8e1e7","#c2185b"],["#14161c","#3b4252"],["#e8f4f8","#1f6f8b"]];
+const PATTERNS=[["star8","نجمة ثمانية"],["zellige","زليج"],["arabesque","أرابيسك"],["hex","خلايا سداسية"],["dots","نقاط"],["diag","خطوط مائلة"],["waves","أمواج"],["tri","مثلثات"],["bokeh","بوكيه"],["confetti","كونفيتي"],["paper","ورق"],["rays","أشعة"]];
+let patState={kind:'star8',scheme:0,scale:1};
+function genPattern(kind,scheme,scale){
+  const [bg,fg]=SCHEMES[scheme]||SCHEMES[0];const S=Math.min(1,1600/Math.max(W,H));const w=Math.round(W*S),h=Math.round(H*S);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,w,h);x.strokeStyle=fg;x.fillStyle=fg;
+  const u=Math.round(Math.min(w,h)/9*(scale||1));x.lineWidth=Math.max(1,u/40);
+  const rnd=(()=>{let s=7;return()=>{s=(s*16807)%2147483647;return s/2147483647;};})();
+  const tile=(fn,step,off)=>{for(let yy=-step;yy<h+step;yy+=step)for(let xx=-step;xx<w+step;xx+=step)fn(xx+((off&&Math.round(yy/step)%2)?step/2:0),yy);};
+  if(kind==='star8'){x.globalAlpha=.55;tile((cx,cy)=>{x.save();x.translate(cx,cy);for(let k=0;k<2;k++){x.rotate(k*Math.PI/4);x.strokeRect(-u*.32,-u*.32,u*.64,u*.64);}x.restore();},u);x.globalAlpha=.25;tile((cx,cy)=>{x.beginPath();x.arc(cx,cy,u*.07,0,7);x.fill();},u);}
+  else if(kind==='zellige'){x.globalAlpha=.5;tile((cx,cy)=>{x.save();x.translate(cx,cy);x.rotate(Math.PI/4);x.strokeRect(-u*.35,-u*.35,u*.7,u*.7);x.strokeRect(-u*.18,-u*.18,u*.36,u*.36);x.restore();},u);}
+  else if(kind==='arabesque'){x.globalAlpha=.45;tile((cx,cy)=>{x.beginPath();x.arc(cx,cy,u*.5,0,7);x.stroke();},u,false);tile((cx,cy)=>{x.beginPath();x.arc(cx+u/2,cy+u/2,u*.5,0,7);x.stroke();},u,false);}
+  else if(kind==='hex'){x.globalAlpha=.5;const r=u*.5;tile((cx,cy)=>{x.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i+Math.PI/6;x.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}x.closePath();x.stroke();},r*1.732,true);}
+  else if(kind==='dots'){x.globalAlpha=.55;tile((cx,cy)=>{x.beginPath();x.arc(cx,cy,u*.12,0,7);x.fill();},u*.6,true);}
+  else if(kind==='diag'){x.globalAlpha=.35;x.lineWidth=u*.12;for(let i=-h;i<w+h;i+=u*.5){x.beginPath();x.moveTo(i,0);x.lineTo(i+h,h);x.stroke();}}
+  else if(kind==='waves'){x.globalAlpha=.4;x.lineWidth=Math.max(2,u/25);for(let yy=0;yy<h+u;yy+=u*.45){x.beginPath();for(let xx=0;xx<=w;xx+=8)x.lineTo(xx,yy+Math.sin(xx/u*3)*u*.15);x.stroke();}}
+  else if(kind==='tri'){x.globalAlpha=.3;tile((cx,cy)=>{x.beginPath();x.moveTo(cx,cy-u*.4);x.lineTo(cx+u*.4,cy+u*.3);x.lineTo(cx-u*.4,cy+u*.3);x.closePath();if((Math.round(cx/u)+Math.round(cy/u))%2)x.fill();else x.stroke();},u*.9,true);}
+  else if(kind==='bokeh'){for(let i=0;i<60;i++){const r=u*(.3+rnd()*1.2);const g=x.createRadialGradient(0,0,0,0,0,r);g.addColorStop(0,fg);g.addColorStop(1,'rgba(0,0,0,0)');x.save();x.translate(rnd()*w,rnd()*h);x.globalAlpha=.12+rnd()*.25;x.fillStyle=g;x.beginPath();x.arc(0,0,r,0,7);x.fill();x.restore();}}
+  else if(kind==='confetti'){const cols=[fg,'#e0533f','#f6c453','#2fb8a6','#7b2d8b'];for(let i=0;i<220;i++){x.save();x.translate(rnd()*w,rnd()*h);x.rotate(rnd()*6.3);x.globalAlpha=.6+rnd()*.4;x.fillStyle=cols[i%cols.length];x.fillRect(-u*.08,-u*.03,u*.16,u*.06);x.restore();}}
+  else if(kind==='paper'){const id=x.getImageData(0,0,w,h),d=id.data;for(let i=0;i<d.length;i+=4){const n=(rnd()-.5)*26;d[i]+=n;d[i+1]+=n;d[i+2]+=n;}x.putImageData(id,0,0);x.globalAlpha=.08;x.lineWidth=1;for(let yy=0;yy<h;yy+=u*.25){x.beginPath();x.moveTo(0,yy);x.lineTo(w,yy);x.stroke();}}
+  else if(kind==='rays'){x.globalAlpha=.18;x.translate(w/2,h/2);for(let i=0;i<24;i++){x.rotate(Math.PI/12);x.beginPath();x.moveTo(0,0);x.lineTo(w*1.5,-u*.3);x.lineTo(w*1.5,u*.3);x.closePath();if(i%2)x.fill();}x.setTransform(1,0,0,1,0,0);}
+  x.globalAlpha=1;return c.toDataURL('image/jpeg',.9);
+}
+function applyPattern(){const url=genPattern(patState.kind,patState.scheme,patState.scale);setBgImage(url);}
+
 /* image filters */
 function rebuildFilters(img){const F=fabric.Image.filters,a=img.adj||{b:0,c:0,s:0,h:0,bl:0};const p=FILTERS.find(f=>f.id===(img.preset||'none'))||FILTERS[0];
   const fs=p.f();if(a.b)fs.push(new F.Brightness({brightness:a.b}));if(a.c)fs.push(new F.Contrast({contrast:a.c}));if(a.s)fs.push(new F.Saturation({saturation:a.s}));if(a.h)fs.push(new F.HueRotation({rotation:a.h}));if(a.bl)fs.push(new F.Blur({blur:a.bl}));
@@ -672,7 +728,7 @@ function renderPanel(){
     }else h+=`<p class="empty">اختر صورة على اللوحة لتعديلها وإضافة الفلاتر</p>`;
   }
   else if(tab==='stk'){
-    h+=`<div class="sec"><div class="sec-h">إطارات الصفحة</div><div class="chips"><button class="chip" data-frame="thin">رفيع</button><button class="chip" data-frame="thick">سميك</button><button class="chip" data-frame="double">مزدوج</button><button class="chip" data-frame="round">زوايا دائرية</button><button class="chip" data-frame="dashed">متقطع</button><button class="chip" data-frame="ornate">مزخرف</button><button class="chip" data-frame="corners">زوايا فقط</button><button class="chip" data-frame="polaroid">بولارويد</button><button class="chip" data-frame="gradient">متدرج</button></div></div>`;
+    h+=`<div class="sec"><div class="sec-h">إطارات الصفحة</div><div class="chips"><button class="chip" data-frame="thin">رفيع</button><button class="chip" data-frame="thick">سميك</button><button class="chip" data-frame="double">مزدوج</button><button class="chip" data-frame="round">زوايا دائرية</button><button class="chip" data-frame="dashed">متقطع</button><button class="chip" data-frame="ornate">مزخرف</button><button class="chip" data-frame="floral">زهري</button><button class="chip" data-frame="arab">عربي</button><button class="chip" data-frame="ribbon">شريطي</button><button class="chip" data-frame="corners">زوايا فقط</button><button class="chip" data-frame="polaroid">بولارويد</button><button class="chip" data-frame="gradient">متدرج</button></div></div>`;
     if(o&&o.role==='frame'){const first=o.type==='group'?o.getObjects()[0]:o;const cur=first.type==='path'?first.fill:first.stroke;h+=`<div class="sec"><div class="sec-h">لون الإطار — ${o.name}</div>${swatches(typeof cur==='string'?cur:null,'framec')}${first.stroke?slider('framew','سماكة',1,Math.round(W/20),1,first.strokeWidth||4):''}${slider('op','الشفافية',0,1,.05,o.opacity)}</div>`;}
     h+=`<div class="sec"><div class="sec-h">أشكال</div><div class="chips"><button class="chip" data-shape="rect">مستطيل</button><button class="chip" data-shape="round">مستطيل دائري</button><button class="chip" data-shape="circle">دائرة</button><button class="chip" data-shape="tri">مثلث</button><button class="chip" data-shape="line">خط</button><button class="chip" data-shape="heart">قلب</button><button class="chip" data-shape="star">نجمة</button><button class="chip" data-shape="frame">إطار</button></div></div>`;
     if(o&&!isText(o)&&o.type!=='image'&&o.role!=='overlay'&&o.role!=='frame')h+=`<div class="sec"><div class="sec-h">لون الشكل</div>${swatches(o.fill,'fill')}${slider('op','الشفافية',0,1,.05,o.opacity)}</div>`;
@@ -685,6 +741,7 @@ function renderPanel(){
     const bc=canvas.backgroundColor,cur=typeof bc==='string'?bc:null;
     h+=`<div class="sec"><div class="grid" style="grid-template-columns:1fr 1fr"><button class="btn primary" id="pickBg" style="justify-content:center">صورة من الاستديو</button><button class="btn" id="rmBg" style="justify-content:center" ${canvas.backgroundImage?'':'disabled'}>إزالة صورة الخلفية</button></div></div>`;
     h+=`<div class="sec"><div class="sec-h">لون ثابت</div>${swatches(cur,'bgc')}</div>`;
+    h+=`<div class="sec"><div class="sec-h">أنماط وزخارف (تُولَّد داخل التطبيق)</div><div class="chips">${PATTERNS.map(([k,n])=>`<button class="chip ${patState.kind===k?'active':''}" data-pat="${k}">${n}</button>`).join('')}</div><div class="row" style="margin-top:6px;gap:6px">${SCHEMES.map((sc,i)=>`<button class="sw" data-scheme="${i}" style="width:32px;background:linear-gradient(135deg,${sc[0]} 50%,${sc[1]} 50%);${patState.scheme===i?'box-shadow:0 0 0 2px var(--accent)':''}"></button>`).join('')}</div>${slider('patscale','حجم النمط',.4,2.5,.1,patState.scale)}<button class="btn primary block" data-applypat="1" style="margin-top:6px">تطبيق النمط كخلفية</button></div>`;
     h+=`<div class="sec"><div class="sec-h">تدرجات</div><div class="grid g6">${GRADS.map((g,i)=>`<button class="sw" data-grad="${i}" style="background:linear-gradient(160deg,${g.join(',')})"></button>`).join('')}</div><div class="seg" style="margin-top:8px" id="gdir"><button data-dir="v" class="active">عمودي</button><button data-dir="d">قطري</button><button data-dir="h">أفقي</button></div></div>`;
     if(canvas.backgroundImage){const bi=canvas.backgroundImage,a=bi.adj||{b:0,c:0,s:0,h:0,bl:0};
       h+=`<div class="sec"><div class="sec-h">فلاتر صورة الخلفية</div><div class="filters">${FILTERS.map(f=>`<button data-bgpreset="${f.id}" class="${(bi.preset||'none')===f.id?'active':''}"><i class="th" style="filter:${cssPreview(f.id)}"></i>${f.n}</button>`).join('')}</div>${slider('bgb','سطوع',-1,1,.05,a.b)}${slider('bgc2','تباين',-1,1,.05,a.c)}${slider('bgs','تشبع',-1,1,.05,a.s)}${slider('bgbl','ضبابية',0,1,.02,a.bl)}</div>`;}
@@ -759,6 +816,9 @@ function bindPanel(){
     if(d.orn){addSticker(d.orn,'Amiri');return;}
     if(d.emo){addSticker(d.emo,'Tajawal');return;}
     if(d.bgc){setBgColor(d.bgc);return;}
+    if(d.pat){patState.kind=d.pat;applyPattern();renderPanel();return;}
+    if(d.scheme){patState.scheme=+d.scheme;applyPattern();renderPanel();return;}
+    if(d.applypat){applyPattern();return;}
     if(d.grad){const dir=($('#gdir .active')||{}).dataset?.dir||'v';canvas.setBackgroundImage(null);canvas.setBackgroundColor(gradient(GRADS[+d.grad],dir),()=>{canvas.requestRenderAll();snap();});$$('[data-grad]').forEach(x=>x.classList.toggle('active',x===b));return;}
     if(d.dir){$$('#gdir button').forEach(x=>x.classList.toggle('active',x===b));const bc=canvas.backgroundColor;if(bc&&bc.colorStops){canvas.setBackgroundColor(gradient(bc.colorStops.map(c=>c.color),d.dir),()=>{canvas.requestRenderAll();snap();});}return;}
     if(d.ov){addOverlay(d.ov);return;}
@@ -786,6 +846,7 @@ function bindPanel(){
       case 'lsp':o.set('charSpacing',v);o.initDimensions();break;
       case 'lh':o.set('lineHeight',v);o.initDimensions();break;
       case 'strw':o.set('strokeWidth',v);break;
+      case 'patscale':patState.scale=v;clearTimeout(window._pt);window._pt=setTimeout(applyPattern,250);return;
       case 'framew':if(o.role==='frame')setFrameWidth(o,v);break;
       case 'imgstrw':o.set({strokeWidth:v,strokeUniform:true});if(v&&!o.stroke)o.set('stroke','#ffffff');break;
       case 'shb':if(o.shadow)o.shadow.blur=v;break;
@@ -890,7 +951,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.6';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.7';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }
