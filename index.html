@@ -170,6 +170,7 @@ input[type=number],select.sel{background:var(--panel2);border:1px solid var(--li
 .gate,.gate *{user-select:text;-webkit-user-select:text}
 .gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;direction:ltr;text-align:left;unicode-bidi:plaintext;-webkit-appearance:none;appearance:none}
 .gate input[name=name]{direction:rtl;text-align:right}
+.gate .pw{position:relative}.gate .pw input{padding-inline-end:44px}.gate .eye{position:absolute;top:0;bottom:0;inset-inline-end:6px;width:36px;display:grid;place-items:center;color:var(--muted)}.gate .eye.on{color:var(--accent)}
 .gate .btn.block{margin-top:14px;padding:12px}
 .gate .alt{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
 .gate .alt button{color:var(--accent);font-weight:700}
@@ -202,8 +203,8 @@ function gateHTML(mode,msg){
   return `<p class="logo">مِداد</p><p class="sub">${isReg?'أنشئ حسابك — يُفعَّل بعد موافقة المدير':'سجّل الدخول للمتابعة'}</p>
   <form id="gateForm">
     ${isReg?'<label>الاسم</label><input name="name" required autocomplete="name" placeholder="اسمك الكامل">':''}
-    <label>البريد الإلكتروني</label><input name="email" type="email" dir="ltr" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="name@example.com" inputmode="email">
-    <label>كلمة المرور</label><input name="password" type="password" dir="ltr" required minlength="6" autocomplete="${isReg?'new-password':'current-password'}" placeholder="••••••••">
+    <label>البريد الإلكتروني</label><input name="email" type="email" dir="ltr" required autocomplete="username email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="name@example.com" inputmode="email" value="${isReg?'':lastEmail()}">
+    <label>كلمة المرور</label><div class="pw"><input name="password" type="password" dir="ltr" required minlength="6" autocomplete="${isReg?'new-password':'current-password'}" placeholder="••••••••"><button type="button" class="eye" data-eye aria-label="إظهار كلمة المرور"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     <button class="btn primary block" type="submit">${isReg?'إنشاء الحساب':'دخول'}</button>
     ${msg?`<div class="msg ${msg.cls}">${msg.text}</div>`:''}
   </form>
@@ -211,18 +212,25 @@ function gateHTML(mode,msg){
 }
 function stateHTML(icon,title,text,extra=''){return `<p class="logo">مِداد</p><div class="state"><div class="big">${icon}</div><h3>${title}</h3><p>${text}</p>${extra}<button class="btn" id="signOut">تسجيل الخروج</button></div>`;}
 let gateMode='login';
+function lastEmail(){try{return localStorage.getItem('midad.lastEmail')||'';}catch(e){return '';}}
+function remember(email){try{localStorage.setItem('midad.lastEmail',email);}catch(e){}}
 function renderGate(msg){const c=document.getElementById('gateCard');c.innerHTML=gateHTML(gateMode,msg);
   c.querySelector('#gateForm').onsubmit=async e=>{e.preventDefault();const f=e.target,email=f.email.value.trim(),pw=f.password.value;const b=f.querySelector('button[type=submit]');b.disabled=true;b.textContent='…';
-    try{if(gateMode==='register'){const cred=await auth.createUserWithEmailAndPassword(email,pw);await cred.user.updateProfile({displayName:f.name.value.trim()});await db.ref('users/'+cred.user.uid).set({email:email.toLowerCase(),name:f.name.value.trim(),status:'pending',createdAt:firebase.database.ServerValue.TIMESTAMP});}
-      else await auth.signInWithEmailAndPassword(email,pw);}
+    try{if(gateMode==='register'){const cred=await auth.createUserWithEmailAndPassword(email,pw);await cred.user.updateProfile({displayName:f.name.value.trim()});await db.ref('users/'+cred.user.uid).set({email:email.toLowerCase(),name:f.name.value.trim(),status:'pending',createdAt:firebase.database.ServerValue.TIMESTAMP});remember(email);}
+      else await auth.signInWithEmailAndPassword(email,pw);remember(email);}
     catch(err){renderGate({cls:'err',text:errMsg(err)});}};
+  c.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=b.parentElement.querySelector('input');i.type=i.type==='password'?'text':'password';b.classList.toggle('on',i.type==='text');i.focus();});
+  if(gateMode==='login'&&lastEmail()){const pw=c.querySelector('[name=password]');setTimeout(()=>{try{pw.focus({preventScroll:true});}catch(e){}},50);}
   c.querySelectorAll('[data-mode]').forEach(b=>b.onclick=async()=>{if(b.dataset.mode==='reset'){const em=c.querySelector('[name=email]').value.trim();if(!em)return renderGate({cls:'err',text:'اكتب بريدك أولًا ثم اضغط "نسيت كلمة المرور"'});try{await auth.sendPasswordResetEmail(em);renderGate({cls:'ok',text:'أرسلنا رابط إعادة التعيين إلى بريدك'});}catch(err){renderGate({cls:'err',text:errMsg(err)});}return;}gateMode=b.dataset.mode;renderGate();});}
 function showState(html){const c=document.getElementById('gateCard');c.innerHTML=html;const so=c.querySelector('#signOut');if(so)so.onclick=()=>auth.signOut();}
 window.isAdminUser=u=>!!u&&(u.email||'').toLowerCase()===ADMIN_EMAIL;
-let userRef=null;
+let userRef=null,loginLogged=false;
+window.logActivity=async function(kind,data,keep){try{const u=auth.currentUser;if(!u)return;const ref=db.ref('activity/'+u.uid+'/'+kind);await ref.push({at:firebase.database.ServerValue.TIMESTAMP,...(data||{})});
+  const s=await ref.orderByKey().get();const keys=Object.keys(s.val()||{});if(keys.length>keep){const upd={};keys.slice(0,keys.length-keep).forEach(k=>upd[k]=null);await ref.update(upd);}}catch(e){console.warn('activity',e);}};
 auth.onAuthStateChanged(async u=>{
   const gate=document.getElementById('gate');if(userRef){userRef.off();userRef=null;}
-  if(!u){gate.hidden=false;renderGate();document.dispatchEvent(new CustomEvent('midad-auth',{detail:null}));return;}
+  if(!u){loginLogged=false;gate.hidden=false;renderGate();document.dispatchEvent(new CustomEvent('midad-auth',{detail:null}));return;}
+  if(!loginLogged){loginLogged=true;const ua=navigator.userAgent;const dev=/iPhone|iPad/.test(ua)?'iPhone':/Android/.test(ua)?'Android':/Mac/.test(ua)?'Mac':/Windows/.test(ua)?'Windows':'جهاز';window.logActivity('logins',{dev,email:(u.email||'').toLowerCase()},30);}
   let admin=window.isAdminUser(u);
   if(!admin){try{admin=(await db.ref('admins/'+u.uid).get()).val()===true;}catch(e){}}
   if(admin){gate.hidden=true;document.dispatchEvent(new CustomEvent('midad-auth',{detail:{user:u,admin:true}}));return;}
@@ -598,7 +606,7 @@ $('#doExport').onclick=async()=>{
   const mult=Math.min(qual,Math.floor(16000/Math.max(W,H))||1)/scale;
   if(fmt==='pdf'){const url=canvas.toDataURL({format:'jpeg',quality:.95,multiplier:Math.min(2,mult)});const {jsPDF}=window.jspdf;const mmW=W/300*25.4,mmH=H/300*25.4;const doc=new jsPDF({orientation:mmW>mmH?'l':'p',unit:'mm',format:[mmW,mmH]});doc.addImage(url,'JPEG',0,0,mmW,mmH);await deliver(name+'.pdf',doc.output('blob'),'pdf');}
   else{const url=canvas.toDataURL({format:fmt==='jpg'?'jpeg':'png',quality:.95,multiplier:mult});await deliver(name+'.'+fmt,dataURLtoBlob(url),'image');}
-  $('#exportModal').hidden=true;
+  $('#exportModal').hidden=true;if(window.logActivity)logActivity('exports',{title:name,fmt,W,H},50);
 };
 $('#newBtn').onclick=()=>{$('#newModal').hidden=false;};
 $('#closeNew').onclick=()=>$('#newModal').hidden=true;
@@ -850,7 +858,7 @@ let saving=false;
 async function saveProject(silent){
   if(saving)return;saving=true;
   try{if(!curId)curId=store.newId();const title=$('#projTitle').value.trim()||'تصميم بدون عنوان';
-    await store.put(curId,{title,W,H,sizeId,json:hist[hi]||serialize(),thumb:thumb(),updatedAt:Date.now()});dirty=false;if(!silent)toast('تم الحفظ');}
+    await store.put(curId,{title,W,H,sizeId,json:hist[hi]||serialize(),thumb:thumb(),updatedAt:Date.now()});dirty=false;if(!silent){toast('تم الحفظ');if(window.logActivity)logActivity('saves',{title,W,H,id:curId},50);}}
   catch(e){toast('تعذر الحفظ: '+(e.message||e));}
   saving=false;
 }
@@ -882,7 +890,7 @@ async function openProject(id){
 async function renderProjects(){
   const g=$('#projGrid');g.innerHTML='<p class="empty">جارٍ التحميل…</p>';
   try{const list=(await store.list()).filter(p=>!p.template).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.5';
+    $('#projNote').textContent=(store.cloud()?'تصاميمك محفوظة في حسابك وتفتحها من أي جهاز':'تصاميمك محفوظة على هذا الجهاز فقط')+' · الإصدار 2.6';
     g.innerHTML=list.length?list.map(p=>`<div class="pj" data-id="${p.id}"><div class="th" style="background-image:url(${p.thumb||''})" data-open="1"></div><div class="nm">${(p.title||'بدون عنوان').replace(/</g,'&lt;')}</div><div class="dt">${p.W}×${p.H} · ${p.updatedAt?new Date(p.updatedAt).toLocaleDateString('ar-SA-u-nu-latn'):''}</div><div class="ac"><button data-open="1">فتح</button><button data-del="1" class="danger">حذف</button></div></div>`).join(''):'<p class="empty">لا توجد تصاميم محفوظة بعد — اضغط "حفظ" في المحرر لحفظ تصميمك</p>';}
   catch(e){g.innerHTML='<p class="empty">تعذر التحميل: '+(e.message||e)+'</p>';}
 }

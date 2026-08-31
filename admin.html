@@ -52,6 +52,13 @@ button{background:none;border:0;cursor:pointer;padding:0}
 .gate label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
 .gate input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;direction:ltr;text-align:left;unicode-bidi:plaintext;-webkit-appearance:none;appearance:none}
 .gate .btn.block{width:100%;justify-content:center;margin-top:14px;padding:12px}
+.gate .pw{position:relative}.gate .pw input{padding-inline-end:44px}.gate .eye{position:absolute;top:0;bottom:0;inset-inline-end:6px;width:36px;display:grid;place-items:center;color:var(--muted)}.gate .eye.on{color:var(--accent)}
+.hist{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:12px}
+.hist h4{margin:0 0 6px;font-size:12px;color:var(--accent)}
+.hist ul{margin:0;padding:0;list-style:none;max-height:220px;overflow:auto}
+.hist li{padding:3px 0;border-bottom:1px solid var(--line);color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.hist li b{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:600px){.hist{grid-template-columns:1fr}}
 .gate .msg{font-size:13px;margin-top:10px;padding:10px;border-radius:10px;background:var(--panel2);color:var(--danger)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:60}
 .toast.show{opacity:1}
@@ -80,9 +87,12 @@ const ERR={'auth/invalid-email':'البريد غير صحيح','auth/user-not-fo
 const fmt=ms=>ms?new Date(ms).toLocaleDateString('ar-SA-u-nu-latn',{year:'numeric',month:'short',day:'numeric'}):'—';
 const fmtG=ms=>ms?new Date(ms).toLocaleDateString('en-GB'):'—';
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
-function renderGate(msg){$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">دخول المدير</p><form id="f"><label>البريد الإلكتروني</label><input name="email" type="email" dir="ltr" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false"><label>كلمة المرور</label><input name="password" type="password" dir="ltr" required autocomplete="current-password"><button class="btn primary block" type="submit">دخول</button>${msg?`<div class="msg">${msg}</div>`:''}</form><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;
-  $('#f').onsubmit=async e=>{e.preventDefault();try{await auth.signInWithEmailAndPassword(e.target.email.value.trim(),e.target.password.value);}catch(err){renderGate(ERR[err.code]||err.code);}};}
-let users={},filter='all',q='';
+function renderGate(msg){$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">دخول المدير</p><form id="f"><label>البريد الإلكتروني</label><input name="email" type="email" dir="ltr" required autocomplete="username email" autocapitalize="none" autocorrect="off" spellcheck="false" value="${(()=>{try{return localStorage.getItem('midad.lastEmail')||''}catch(e){return ''}})()}"><label>كلمة المرور</label><div class="pw"><input name="password" type="password" dir="ltr" required autocomplete="current-password"><button type="button" class="eye" id="eye" aria-label="إظهار كلمة المرور"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div><button class="btn primary block" type="submit">دخول</button>${msg?`<div class="msg">${msg}</div>`:''}</form><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;
+  $('#f').onsubmit=async e=>{e.preventDefault();try{await auth.signInWithEmailAndPassword(e.target.email.value.trim(),e.target.password.value);try{localStorage.setItem('midad.lastEmail',e.target.email.value.trim());}catch(x){}}catch(err){renderGate(ERR[err.code]||err.code);}};
+  $('#eye').onclick=()=>{const i=$('#f [name=password]');i.type=i.type==='password'?'text':'password';$('#eye').classList.toggle('on',i.type==='text');i.focus();};}
+let users={},activity={},open={},filter='all',q='';
+const fmtDT=ms=>ms?new Date(ms).toLocaleString('ar-SA-u-nu-latn',{dateStyle:'short',timeStyle:'short'}):'—';
+const last=(o)=>{const v=Object.values(o||{});return v.length?v[v.length-1]:null;};
 function stateOf(u){if(u.status==='blocked')return 'blocked';if(u.status==='approved')return (u.expiresAt&&u.expiresAt<Date.now())?'expired':'approved';return 'pending';}
 const LBL={pending:'بانتظار الموافقة',approved:'فعّال',expired:'منتهي',blocked:'موقوف'};
 function render(){
@@ -91,14 +101,19 @@ function render(){
   $('#sPend').textContent=c.pending;$('#sAct').textContent=c.approved;$('#sExp').textContent=c.expired;$('#sAll').textContent=arr.length;
   const shown=arr.filter(u=>(filter==='all'||u.st===filter)&&(!q||(u.name||'').includes(q)||(u.email||'').includes(q.toLowerCase())));
   $('#list').innerHTML=shown.length?shown.map(u=>{const d=new Date(u.expiresAt||Date.now()+30*864e5);const iso=d.toISOString().slice(0,10);
-    return `<div class="u" data-id="${u.id}"><div><div class="nm">${esc(u.name)||'<span style="color:var(--muted)">بدون اسم</span>'} <span class="pill ${u.st}">${LBL[u.st]}</span></div><div class="em">${esc(u.email)}</div><div class="meta"><span>سُجّل: ${fmt(u.createdAt)}</span>${u.status==='approved'?`<span>ينتهي: <b>${u.expiresAt?fmt(u.expiresAt):'بلا نهاية'}</b> (${fmtG(u.expiresAt)})</span>`:''}</div></div>
-    <div class="acts"><input type="date" value="${iso}" aria-label="تاريخ نهاية الاشتراك"><button class="btn sm" data-a="m1">+شهر</button><button class="btn sm" data-a="m3">+3 أشهر</button><button class="btn sm" data-a="y1">+سنة</button><button class="btn sm primary" data-a="ok">${u.st==='approved'?'تحديث التاريخ':'قبول'}</button>${u.st==='blocked'?`<button class="btn sm" data-a="unblock">إلغاء الإيقاف</button>`:`<button class="btn sm" data-a="block">إيقاف</button>`}<button class="btn sm danger" data-a="del">حذف</button></div></div>`;}).join(''):'<p class="empty">لا يوجد مستخدمون في هذه القائمة</p>';
+    return `<div class="u" data-id="${u.id}"><div><div class="nm">${esc(u.name)||'<span style="color:var(--muted)">بدون اسم</span>'} <span class="pill ${u.st}">${LBL[u.st]}</span></div><div class="em">${esc(u.email)}</div><div class="meta"><span>سُجّل: ${fmt(u.createdAt)}</span>${u.status==='approved'?`<span>ينتهي: <b>${u.expiresAt?fmt(u.expiresAt):'بلا نهاية'}</b> (${fmtG(u.expiresAt)})</span>`:''}${(()=>{const ac=activity[u.id]||{};const l=last(ac.logins);const n=o=>Object.keys(o||{}).length;return `<span>آخر دخول: <b>${l?fmtDT(l.at):'—'}</b></span><span>دخول: ${n(ac.logins)}</span><span>تصاميم محفوظة: ${n(ac.saves)}</span><span>تصديرات: ${n(ac.exports)}</span>`;})()}</div></div>
+    <div class="acts"><input type="date" value="${iso}" aria-label="تاريخ نهاية الاشتراك"><button class="btn sm" data-a="m1">+شهر</button><button class="btn sm" data-a="m3">+3 أشهر</button><button class="btn sm" data-a="y1">+سنة</button><button class="btn sm primary" data-a="ok">${u.st==='approved'?'تحديث التاريخ':'قبول'}</button>${u.st==='blocked'?`<button class="btn sm" data-a="unblock">إلغاء الإيقاف</button>`:`<button class="btn sm" data-a="block">إيقاف</button>`}<button class="btn sm danger" data-a="del">حذف</button><button class="btn sm" data-a="hist">${open[u.id]?'إخفاء السجل':'السجل'}</button></div>${open[u.id]?histHTML(u.id):''}</div>`;}).join(''):'<p class="empty">لا يوجد مستخدمون في هذه القائمة</p>';
 }
+function histHTML(id){const ac=activity[id]||{};const rows=(o,f)=>{const v=Object.values(o||{}).sort((x,y)=>(y.at||0)-(x.at||0));return v.length?v.map(f).join(''):'<li><span>لا يوجد</span></li>';};
+  return `<div class="hist"><div><h4>آخر ${Math.min(30,Object.keys(ac.logins||{}).length)} مرة دخول</h4><ul>${rows(ac.logins,x=>`<li><b>${fmtDT(x.at)}</b><span>${esc(x.dev||'')}</span></li>`)}</ul></div>
+  <div><h4>التصاميم المحفوظة (آخر 50)</h4><ul>${rows(ac.saves,x=>`<li><b>${esc(x.title||'بدون عنوان')}</b><span>${fmtDT(x.at)}</span></li>`)}</ul></div>
+  <div><h4>التصديرات (آخر 50)</h4><ul>${rows(ac.exports,x=>`<li><b>${esc(x.title||'')} · ${(x.fmt||'').toUpperCase()} ${x.W?x.W+'×'+x.H:''}</b><span>${fmtDT(x.at)}</span></li>`)}</ul></div></div>`;}
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function endOfDay(iso){const d=new Date(iso+'T23:59:59');return d.getTime();}
 $('#list').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const card=b.closest('.u'),id=card.dataset.id,u=users[id],inp=card.querySelector('input[type=date]');const a=b.dataset.a;
   const base=(u.expiresAt&&u.expiresAt>Date.now())?new Date(u.expiresAt):new Date();
   if(a==='m1'||a==='m3'||a==='y1'){const d=new Date(base);if(a==='m1')d.setMonth(d.getMonth()+1);if(a==='m3')d.setMonth(d.getMonth()+3);if(a==='y1')d.setFullYear(d.getFullYear()+1);inp.value=d.toISOString().slice(0,10);return;}
+  if(a==='hist'){open[id]=!open[id];render();return;}
   try{
     if(a==='ok'){if(!inp.value)return toast('حدد تاريخ النهاية');await db.ref('users/'+id).update({status:'approved',expiresAt:endOfDay(inp.value),approvedAt:firebase.database.ServerValue.TIMESTAMP,approvedBy:auth.currentUser.email});toast('تم القبول حتى '+fmtG(endOfDay(inp.value)));}
     if(a==='block'){await db.ref('users/'+id).update({status:'blocked'});toast('تم إيقاف الحساب');}
@@ -114,7 +129,7 @@ auth.onAuthStateChanged(async u=>{if(ref){ref.off();ref=null;}
   if(!u){$('#gate').hidden=false;renderGate();return;}
   let admin=(u.email||'').toLowerCase()===ADMIN_EMAIL;if(!admin){try{admin=(await db.ref('admins/'+u.uid).get()).val()===true;}catch(e){}}
   if(!admin){$('#gate').hidden=false;$('#gateCard').innerHTML=`<span class="logo">مِداد</span><p class="sub">هذا الحساب (${esc(u.email)}) ليس مديرًا</p><button class="btn primary block" id="so">تسجيل الخروج</button><p class="sub" style="margin-top:14px"><a href="index.html" style="color:var(--accent)">العودة إلى المحرر</a></p>`;$('#so').onclick=()=>auth.signOut();return;}
-  $('#gate').hidden=true;ref=db.ref('users');ref.on('value',s=>{users=s.val()||{};render();},err=>{$('#list').innerHTML='<p class="empty">تعذر القراءة: '+err.message+'</p>';});
+  $('#gate').hidden=true;ref=db.ref('users');ref.on('value',s=>{users=s.val()||{};render();},err=>{$('#list').innerHTML='<p class="empty">تعذر القراءة: '+err.message+'</p>';});db.ref('activity').on('value',s=>{activity=s.val()||{};render();},()=>{});
 });
 </script>
 </body>
